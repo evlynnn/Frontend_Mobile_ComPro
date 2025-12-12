@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../constants/colors.dart';
 
 class AccessLogsScreen extends StatefulWidget {
   const AccessLogsScreen({super.key});
@@ -9,7 +9,7 @@ class AccessLogsScreen extends StatefulWidget {
 }
 
 class _AccessLogsScreenState extends State<AccessLogsScreen> {
-  int _selectedIndex = 1; // "Logs" is selected (index 1)
+  final int _selectedIndex = 1; // "Logs" is selected (index 1)
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -58,8 +58,8 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
               children: [
                 _buildLogItem(
                   icon: Icons.lock_open,
-                  iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF1E293B), // slate-800
+                  iconColor: AppColors.textPrimary(context),
+                  iconBgColor: AppColors.cardSurface(context), // slate-800
                   name: 'Jane Doe',
                   action: 'Unlocked Front Door',
                   time: '10:42 AM',
@@ -67,47 +67,40 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
                 _buildLogItem(
                   icon: Icons.lock,
                   iconColor: const Color(0xFFEF4444), // red-500
-                  iconBgColor: const Color(0xFF451A1A), // red-500/20 approx
+                  iconBgColor:
+                      AppColors.cardSurface(context), // red-500/20 approx
                   name: 'Unknown',
                   action: 'Access Denied',
                   time: '5m ago',
                 ),
                 _buildLogItem(
                   icon: Icons.lock,
-                  iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF1E293B),
+                  iconColor: AppColors.textPrimary(context),
+                  iconBgColor: AppColors.cardSurface(context),
                   name: 'Jane Doe',
                   action: 'Locked Front Door',
                   time: '1h ago',
                 ),
                 _buildLogItem(
-                  icon: Icons.sensors, // motion_sensor_active replacement
-                  iconColor: const Color(0xFFEAB308), // yellow-500
-                  iconBgColor: const Color(0xFF42330D), // yellow-500/20 approx
-                  name: 'Motion Detected',
-                  action: 'Front Porch',
-                  time: 'Yesterday',
-                ),
-                _buildLogItem(
                   icon: Icons.lock_open,
-                  iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF1E293B),
+                  iconColor: AppColors.textPrimary(context),
+                  iconBgColor: AppColors.cardSurface(context),
                   name: 'Delivery Driver',
                   action: 'Unlocked Front Door',
                   time: 'Yesterday',
                 ),
                 _buildLogItem(
                   icon: Icons.lock_open,
-                  iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF1E293B),
+                  iconColor: AppColors.textPrimary(context),
+                  iconBgColor: AppColors.cardSurface(context),
                   name: 'John Appleseed',
                   action: 'Unlocked Front Door',
                   time: 'Oct 23, 2023',
                 ),
                 _buildLogItem(
                   icon: Icons.lock,
-                  iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF1E293B),
+                  iconColor: AppColors.textPrimary(context),
+                  iconBgColor: AppColors.cardSurface(context),
                   name: 'John Appleseed',
                   action: 'Locked Front Door',
                   time: 'Oct 23, 2023',
@@ -120,10 +113,9 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
 
       // Bottom Navigation Bar
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-                color: Color(0xFF283039), width: 1), // dark:border-[#283039]
+            top: BorderSide(color: AppColors.stroke(context), width: 1),
           ),
         ),
         child: BottomNavigationBar(
@@ -161,7 +153,7 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
       height: 32,
       padding: const EdgeInsets.only(left: 12, right: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B), // slate-800
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -169,16 +161,16 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFFE2E8F0), // slate-200
+            style: TextStyle(
+              color: AppColors.textPrimary(context),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(width: 6),
-          const Icon(
+          Icon(
             Icons.expand_more,
-            color: Color(0xFF94A3B8), // slate-400
+            color: AppColors.disabled(context),
             size: 20,
           ),
         ],
@@ -232,8 +224,8 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.textPrimary(context),
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),

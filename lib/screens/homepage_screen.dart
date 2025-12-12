@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../constants/colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,7 +9,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -47,11 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C242D), // dark:bg-[#1C242D]
-                borderRadius: BorderRadius.circular(12), // rounded-xl
+                color: AppColors.surface(context),
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: AppColors.shadow(context),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -60,10 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Daily Summary',
                     style: TextStyle(
-                      color: Color(0xFF9DABB9), // dark:text-[#9dabb9]
+                      color: AppColors.textPrimary(context),
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -75,21 +75,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       // Total Detections Column
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             '45',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textPrimary(context),
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                               height: 1.0,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'Total Detections',
                             style: TextStyle(
-                              color: Color(0xFF9DABB9),
+                              color: AppColors.disabled(context),
                               fontSize: 16,
                             ),
                           ),
@@ -98,21 +98,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       // Unknown Alerts Column
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
+                        children: [
                           Text(
                             '2',
                             style: TextStyle(
-                              color: Color(0xFFEF4444), // text-red-500
+                              color: AppColors.primaryDarker(context),
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                               height: 1.0,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'Unknown Alerts',
                             style: TextStyle(
-                              color: Color(0xFF9DABB9),
+                              color: AppColors.disabled(context),
                               fontSize: 16,
                             ),
                           ),
@@ -121,13 +121,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  const Divider(
-                      color: Color(0xFF334155), height: 1), // border-t
+                  Divider(color: AppColors.divider(context), height: 1),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'Device Online',
                     style: TextStyle(
-                      color: Color(0xFF9DABB9),
+                      color: AppColors.textPrimary(context),
                       fontSize: 16,
                     ),
                   ),
@@ -138,10 +137,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 32),
 
             // Latest Activity Header
-            const Text(
+            Text(
               'Latest Activity',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -149,41 +148,114 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 16),
 
-            // Activity Item
+            // Activity Item 1 - Front Door Unlocked
             Row(
               children: [
                 // Icon Container
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF283039), // dark:bg-[#283039]
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryHighlight(context),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.person_outline,
-                    color: Color(0xFF94A3B8), // dark:text-slate-400
+                  child: Icon(
+                    Icons.lock_open_outlined,
+                    color: AppColors.primaryDarker(context),
                     size: 24,
                   ),
                 ),
                 const SizedBox(width: 16),
                 // Text Content
-                const Expanded(
-                  child: Text(
-                    'John Doe unlocked the door',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Front Door Unlocked',
+                        style: TextStyle(
+                          color: AppColors.textPrimary(context),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'John Doe',
+                        style: TextStyle(
+                          color: AppColors.disabled(context),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 // Time
-                const Text(
+                Text(
                   '2 min ago',
                   style: TextStyle(
-                    color: Color(0xFF9DABB9), // dark:text-[#9dabb9]
+                    color: AppColors.disabled(context),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Activity Item 2 - Motion Detected
+            Row(
+              children: [
+                // Icon Container
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface(context),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.divider(context),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.videocam_outlined,
+                    color: AppColors.textPrimary(context),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Text Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Motion Detected',
+                        style: TextStyle(
+                          color: AppColors.textPrimary(context),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'Backyard Camera',
+                        style: TextStyle(
+                          color: AppColors.disabled(context),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Time
+                Text(
+                  '1 hr ago',
+                  style: TextStyle(
+                    color: AppColors.disabled(context),
                     fontSize: 14,
                   ),
                 ),
@@ -193,12 +265,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-                color: Color(0xFF283039), width: 1), // dark:border-[#283039]
+            top: BorderSide(color: AppColors.stroke(context), width: 1),
           ),
-          color: Color(0xCC1C242D), // Footer bg with slight opacity
+          color: AppColors.surface(context).withOpacity(0.8),
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,

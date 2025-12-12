@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -8,7 +9,7 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  int _selectedIndex = 1; // "Logs" active index based on HTML
+  final int _selectedIndex = 1; // "Logs" active index based on HTML
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -38,7 +39,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.delete_sweep_outlined),
-              color: const Color(0xFF9CA3AF), // gray-400
+              color: AppColors.disabled(context),
               onPressed: () {
                 // Handle delete action
               },
@@ -57,7 +58,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: Text(
               'Today',
               style: TextStyle(
-                color: Color(0xFF9CA3AF), // gray-400
+                color: Color(0xFF9CA3AF),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -66,9 +67,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
           // Known Person Detected
           _buildNotificationItem(
-            icon: Icons.how_to_reg, // Closest to person_check
-            iconColor: const Color(0xFF137FEC), // primary
-            iconBgColor: const Color(0xFF137FEC).withOpacity(0.2),
+            icon: Icons.how_to_reg,
+            iconColor: AppColors.primary(context),
+            iconBgColor: AppColors.primary(context).withOpacity(0.2),
             title: 'Known Person Detected',
             subtitle: 'John Doe at Front Door',
             time: '5:28 PM',
@@ -82,9 +83,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           // Unknown Person Detected
           _buildNotificationItem(
             icon: Icons.person_search,
-            iconColor: const Color(0xFFFB923C), // orange-400
-            iconBgColor:
-                const Color(0xFFF97316).withOpacity(0.2), // orange-500/20
+            iconColor: AppColors.warning(context),
+            iconBgColor: AppColors.warning(context).withOpacity(0.2),
             title: 'Unknown Person Detected',
             subtitle: 'Front Door',
             time: '5:30 PM',
@@ -108,13 +108,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
           // Forced Entry Alert (Red)
           _buildNotificationItem(
-            icon: Icons.meeting_room_outlined, // door_open equivalent
-            iconColor: const Color(0xFFF87171), // red-400
-            iconBgColor: const Color(0xFFEF4444).withOpacity(0.2), // red-500/20
-            bgColor: const Color(0xFFEF4444)
-                .withOpacity(0.1), // red-500/10 background
+            icon: Icons.meeting_room_outlined,
+            iconColor: AppColors.error(context),
+            iconBgColor: AppColors.error(context).withOpacity(0.2),
+            bgColor: AppColors.error(context).withOpacity(0.1),
             title: 'Forced Entry Alert',
-            titleColor: const Color(0xFFEF4444), // red-500 text
+            titleColor: AppColors.error(context),
             subtitle: 'Back Door',
             time: '2:15 AM',
             timeColor: const Color(0xFF9CA3AF), // gray-400
@@ -125,8 +124,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           // Another Known Person (Jane Smith)
           _buildNotificationItem(
             icon: Icons.how_to_reg,
-            iconColor: const Color(0xFF137FEC),
-            iconBgColor: const Color(0xFF137FEC).withOpacity(0.2),
+            iconColor: AppColors.primary(context),
+            iconBgColor: AppColors.primary(context).withOpacity(0.2),
             title: 'Known Person Detected',
             subtitle: 'Jane Smith at Garage',
             time: 'Yesterday, 9:12 AM',
@@ -141,11 +140,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       // Bottom Navigation Bar
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-                color: Color(0xFF283039),
-                width: 1), // dark:border-white/10 equivalent
+            top: BorderSide(color: AppColors.stroke(context), width: 1),
           ),
         ),
         child: BottomNavigationBar(

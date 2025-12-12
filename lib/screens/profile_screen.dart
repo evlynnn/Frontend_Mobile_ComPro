@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -8,7 +9,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int _selectedIndex = 2; // "Profile" is selected (index 2)
+  final int _selectedIndex = 2; // "Profile" is selected (index 2)
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -23,6 +24,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -38,14 +41,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 // Profile Image
                 Container(
-                  width: 96, // size-24 (24 * 4 = 96px)
+                  width: 96,
                   height: 96,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFF283039), // bg-slate-200 equivalent
+                    color: AppColors.surface(context),
                     border: Border.all(
-                      color: const Color(
-                          0xFF1C242D), // border-white dark equivalent
+                      color: AppColors.background(context),
                       width: 4,
                     ),
                   ),
@@ -63,43 +65,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF137FEC), // primary
+                      color: AppColors.primary(context),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFF1C242D), // match border
+                        color: AppColors.background(context),
                         width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: AppColors.shadow(context),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.edit,
                       size: 16,
-                      color: Colors.white,
+                      color: isDark ? Colors.white : AppColorsLight.stroke,
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Alex Morgan',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 20, // text-xl
+                color: AppColors.textPrimary(context),
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'alex.morgan@example.com',
               style: TextStyle(
-                color: Color(0xFF9DABB9), // text-[#9dabb9]
+                color: AppColors.disabled(context),
                 fontSize: 14,
               ),
             ),
@@ -107,30 +109,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // --- Menu Options ---
             _buildMenuItem(
-              icon: Icons.person_outline,
-              iconColor: const Color(0xFF137FEC), // primary
-              iconBgColor:
-                  const Color(0xFF1E3A8A).withOpacity(0.2), // blue-900/20
+              icon: Icons.person,
+              iconColor: AppColors.textPrimary(context),
+              iconBgColor: isDark
+                  ? AppColorsDark.stroke.withOpacity(0.3)
+                  : AppColorsLight.divider,
               title: 'Edit Profile',
               onTap: () {},
             ),
             const SizedBox(height: 12),
             _buildMenuItem(
-              icon: Icons.lock_outline,
-              iconColor: const Color(0xFFC084FC), // purple-400
-              iconBgColor:
-                  const Color(0xFF581C87).withOpacity(0.2), // purple-900/20
+              icon: Icons.lock,
+              iconColor: AppColors.textPrimary(context),
+              iconBgColor: isDark
+                  ? AppColorsDark.stroke.withOpacity(0.3)
+                  : AppColorsLight.divider,
               title: 'Change Password',
               onTap: () {},
             ),
             const SizedBox(height: 12),
             _buildMenuItem(
-              icon: Icons.settings_outlined,
-              iconColor: const Color(0xFF94A3B8), // slate-400
-              iconBgColor:
-                  const Color(0xFF334155).withOpacity(0.5), // slate-700/50
+              icon: Icons.settings,
+              iconColor: AppColors.textPrimary(context),
+              iconBgColor: isDark
+                  ? AppColorsDark.stroke.withOpacity(0.3)
+                  : AppColorsLight.divider,
               title: 'App Settings',
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/settings');
+              },
             ),
 
             // --- Logout Section ---
@@ -148,23 +155,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7F1D1D).withOpacity(0.1), // red-900/10
+                  color: AppColors.error(context).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color:
-                        const Color(0xFF7F1D1D).withOpacity(0.3), // red-900/30
+                    color: AppColors.cardSurface(context),
                   ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(Icons.logout,
-                        color: Color(0xFFF87171), size: 20), // red-400
-                    SizedBox(width: 8),
+                        color: AppColors.error(context), size: 20),
+                    const SizedBox(width: 8),
                     Text(
                       'Logout',
                       style: TextStyle(
-                        color: Color(0xFFF87171), // red-400
+                        color: AppColors.error(context),
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -174,10 +180,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'App Version 2.4.0',
               style: TextStyle(
-                color: Color(0xFF475569), // slate-600
+                color: AppColors.disabled(context),
                 fontSize: 12,
               ),
             ),
@@ -185,12 +191,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-                color: Color(0xFF283039), width: 1), // dark:border-[#283039]
+            top: BorderSide(color: AppColors.stroke(context), width: 1),
           ),
-          color: Color(0xCC1C242D), // Footer bg
+          color: AppColors.surface(context).withOpacity(0.8),
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
@@ -235,11 +240,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1C242D), // Card bg
+          color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: AppColors.shadow(context),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -264,16 +269,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: AppColors.textPrimary(context),
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
-              color: Color(0xFF475569), // slate-600
+              color: AppColors.disabled(context),
               size: 24,
             ),
           ],

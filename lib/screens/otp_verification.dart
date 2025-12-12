@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../constants/colors.dart';
 
 class OtpVerificationScreen extends StatelessWidget {
   const OtpVerificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF101922),
+      backgroundColor: AppColors.background(context),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -22,34 +25,34 @@ class OtpVerificationScreen extends StatelessWidget {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF137FEC).withOpacity(0.2),
+                      color: AppColors.primary(context).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock_open,
-                      color: Color(0xFF137FEC),
+                      color: AppColors.primary(context),
                       size: 32,
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // Title & Description
-                  const Text(
+                  Text(
                     'Verification Code',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'We have sent the verification code to your email address.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.disabled(context),
                       height: 1.5,
                     ),
                   ),
@@ -68,23 +71,23 @@ class OtpVerificationScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         "Didn't receive the code? ",
-                        style:
-                            TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        style: TextStyle(
+                            color: AppColors.disabled(context), fontSize: 14),
                       ),
                       GestureDetector(
                         onTap: () {
                           // Resend logic
                         },
-                        child: const Text(
+                        child: Text(
                           'Resend OTP',
                           style: TextStyle(
-                            color: Color(0xFF137FEC),
+                            color: AppColors.primary(context),
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                             decoration: TextDecoration.underline,
-                            decorationColor: Color(0xFF137FEC),
+                            decorationColor: AppColors.primary(context),
                           ),
                         ),
                       ),
@@ -101,8 +104,9 @@ class OtpVerificationScreen extends StatelessWidget {
                         Navigator.pushReplacementNamed(context, '/reset');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF137FEC),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.primary(context),
+                        foregroundColor:
+                            isDark ? Colors.white : AppColorsLight.stroke,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -136,8 +140,8 @@ class OtpVerificationScreen extends StatelessWidget {
             FocusScope.of(context).nextFocus();
           }
         },
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: AppColors.textPrimary(context),
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),
@@ -149,18 +153,18 @@ class OtpVerificationScreen extends StatelessWidget {
         ],
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xFF1E293B),
+          fillColor: AppColors.surface(context),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF334155)),
+            borderSide: BorderSide(color: AppColors.stroke(context)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF334155)),
+            borderSide: BorderSide(color: AppColors.stroke(context)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF137FEC), width: 2),
+            borderSide: BorderSide(color: AppColors.primary(context), width: 2),
           ),
         ),
       ),

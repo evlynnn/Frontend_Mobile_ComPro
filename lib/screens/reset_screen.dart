@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -13,8 +14,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF101922),
+      backgroundColor: AppColors.background(context),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -29,34 +32,34 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF137FEC).withOpacity(0.2),
+                      color: AppColors.primary(context).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock_reset,
-                      color: Color(0xFF137FEC),
+                      color: AppColors.primary(context),
                       size: 32,
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // Title & Description
-                  const Text(
+                  Text(
                     'Reset Password',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Secure your account by creating a new strong password.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.disabled(context),
                       height: 1.5,
                     ),
                   ),
@@ -86,13 +89,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                   const SizedBox(height: 12),
                   // Help Text
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Password must be at least 8 characters long and include numbers and special characters.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF64748B), // slate-500
+                        color: AppColors.disabled(context),
                         height: 1.4,
                       ),
                     ),
@@ -112,8 +115,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF137FEC),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.primary(context),
+                        foregroundColor:
+                            isDark ? Colors.white : AppColorsLight.stroke,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -141,14 +145,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(Icons.arrow_back,
-                            size: 18, color: Color(0xFF94A3B8)),
-                        SizedBox(width: 8),
+                            size: 18, color: AppColors.disabled(context)),
+                        const SizedBox(width: 8),
                         Text(
                           'Back to Login',
                           style: TextStyle(
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.disabled(context),
                             fontWeight: FontWeight.w500,
                             fontSize: 14,
                           ),
@@ -170,10 +174,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       alignment: Alignment.centerLeft,
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Color(0xFFCBD5E1), // slate-300
+          color: AppColors.textPrimary(context),
         ),
       ),
     );
@@ -187,31 +191,31 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   }) {
     return TextField(
       obscureText: obscureText,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: AppColors.textPrimary(context)),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0xFF1E293B),
+        fillColor: AppColors.surface(context),
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFF64748B)),
-        prefixIcon: Icon(icon, color: const Color(0xFF64748B)),
+        hintStyle: TextStyle(color: AppColors.disabled(context)),
+        prefixIcon: Icon(icon, color: AppColors.disabled(context)),
         suffixIcon: IconButton(
           icon: Icon(
             obscureText ? Icons.visibility_off : Icons.visibility,
-            color: const Color(0xFF64748B),
+            color: AppColors.disabled(context),
           ),
           onPressed: onToggle,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: BorderSide(color: AppColors.stroke(context)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: BorderSide(color: AppColors.stroke(context)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF137FEC), width: 2),
+          borderSide: BorderSide(color: AppColors.primary(context), width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(vertical: 16),
       ),

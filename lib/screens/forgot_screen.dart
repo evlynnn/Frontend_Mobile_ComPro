@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF101922),
+      backgroundColor: AppColors.background(context),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -21,35 +24,34 @@ class ForgotPasswordScreen extends StatelessWidget {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF137FEC)
-                          .withOpacity(0.2), // primary/20
+                      color: AppColors.primary(context).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock_open,
-                      color: Color(0xFF137FEC),
+                      color: AppColors.primary(context),
                       size: 32,
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // Title & Description
-                  const Text(
+                  Text(
                     'Forgot Password',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 28, // text-3xl approx
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Enter your email address to receive a password reset link.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xFF94A3B8), // slate-400
+                      color: AppColors.disabled(context),
                       height: 1.5,
                     ),
                   ),
@@ -58,39 +60,39 @@ class ForgotPasswordScreen extends StatelessWidget {
                   // Email Input
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: const Text(
+                    child: Text(
                       'Email Address',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFFCBD5E1), // slate-300
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppColors.textPrimary(context)),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFF1E293B), // slate-800
+                      fillColor: AppColors.surface(context),
                       hintText: 'Enter your email address',
-                      hintStyle: const TextStyle(
-                          color: Color(0xFF64748B)), // slate-500
-                      prefixIcon: const Icon(Icons.mail_outline,
-                          color: Color(0xFF64748B)),
+                      hintStyle: TextStyle(color: AppColors.disabled(context)),
+                      prefixIcon: Icon(Icons.mail_outline,
+                          color: AppColors.disabled(context)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                            color: Color(0xFF334155)), // slate-700
+                        borderSide:
+                            BorderSide(color: AppColors.stroke(context)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF334155)),
+                        borderSide:
+                            BorderSide(color: AppColors.stroke(context)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                            color: Color(0xFF137FEC), width: 2),
+                        borderSide: BorderSide(
+                            color: AppColors.primary(context), width: 2),
                       ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -106,8 +108,9 @@ class ForgotPasswordScreen extends StatelessWidget {
                         Navigator.pushNamed(context, '/otp');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF137FEC),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.primary(context),
+                        foregroundColor:
+                            isDark ? Colors.white : AppColorsLight.stroke,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -131,14 +134,14 @@ class ForgotPasswordScreen extends StatelessWidget {
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(Icons.arrow_back,
-                            size: 18, color: Color(0xFF94A3B8)),
-                        SizedBox(width: 8),
+                            size: 18, color: AppColors.disabled(context)),
+                        const SizedBox(width: 8),
                         Text(
                           'Back to Login',
                           style: TextStyle(
-                            color: Color(0xFF94A3B8), // slate-400
+                            color: AppColors.disabled(context),
                             fontWeight: FontWeight.w500,
                             fontSize: 14,
                           ),

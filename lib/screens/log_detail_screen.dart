@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 
 class LogDetailScreen extends StatelessWidget {
   const LogDetailScreen({super.key});
@@ -14,11 +15,11 @@ class LogDetailScreen extends StatelessWidget {
           },
         ),
         title: const Text('Log Detail'),
-        backgroundColor: const Color(0xCC101922), // 80% opacity
+        backgroundColor: AppColors.background(context).withOpacity(0.8),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: Colors.white.withOpacity(0.1), // border-white/10
+            color: AppColors.stroke(context).withOpacity(0.1),
             height: 1.0,
           ),
         ),
@@ -33,8 +34,7 @@ class LogDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B)
-                    .withOpacity(0.5), // dark:bg-slate-800/50
+                color: AppColors.surface(context).withOpacity(0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -45,33 +45,32 @@ class LogDetailScreen extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF22C55E)
-                          .withOpacity(0.2), // bg-green-500/20
-                      borderRadius: BorderRadius.circular(999), // rounded-full
+                      color: AppColors.success(context).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Authorized',
                       style: TextStyle(
-                        color: Color(0xFF4ADE80), // text-green-400
+                        color: AppColors.success(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'John Appleseed',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.darker(context),
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
+                  Text(
                     'Unlocked Front Door',
                     style: TextStyle(
-                      color: Color(0xFF94A3B8), // text-slate-400
+                      color: AppColors.disabled(context),
                       fontSize: 16,
                     ),
                   ),
@@ -84,19 +83,20 @@ class LogDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B)
-                    .withOpacity(0.5), // dark:bg-slate-800/50
+                color: AppColors.surface(context).withOpacity(0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
                 children: [
-                  _buildDetailRow('Time', '10:42 AM, October 26, 2023',
+                  _buildDetailRow(context, 'Time', '10:42 AM, October 26, 2023',
                       showBorder: true),
-                  _buildDetailRow('Visitor Type', 'Delivery', showBorder: true),
-                  _buildDetailRow('AI Confidence', '99.8%', showBorder: true),
-                  _buildDetailRow('Method', 'Facial Recognition',
+                  _buildDetailRow(context, 'Visitor Type', 'Delivery',
                       showBorder: true),
-                  _buildDetailRow('Event ID', 'a1b2-c3d4-e5f6-g7h8',
+                  _buildDetailRow(context, 'AI Confidence', '99.8%',
+                      showBorder: true),
+                  _buildDetailRow(context, 'Method', 'Facial Recognition',
+                      showBorder: true),
+                  _buildDetailRow(context, 'Event ID', 'a1b2-c3d4-e5f6-g7h8',
                       showBorder: false),
                 ],
               ),
@@ -107,14 +107,15 @@ class LogDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {bool showBorder = true}) {
+  Widget _buildDetailRow(BuildContext context, String label, String value,
+      {bool showBorder = true}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: showBorder
-          ? const BoxDecoration(
+          ? BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Color(0xFF334155), // border-slate-700
+                  color: AppColors.stroke(context),
                   width: 1,
                 ),
               ),
@@ -125,8 +126,8 @@ class LogDetailScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF94A3B8), // text-slate-400
+            style: TextStyle(
+              color: AppColors.disabled(context),
               fontSize: 14,
             ),
           ),
@@ -135,8 +136,8 @@ class LogDetailScreen extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: Color(0xFFE2E8F0), // text-slate-200
+              style: TextStyle(
+                color: AppColors.darker(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

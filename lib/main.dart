@@ -1,4 +1,6 @@
+import 'package:face_locker_mobile/constants/colors.dart';
 import 'package:face_locker_mobile/screens/access_logs_screen.dart';
+import 'package:face_locker_mobile/screens/app_settings_screen.dart';
 import 'package:face_locker_mobile/screens/forgot_screen.dart';
 import 'package:face_locker_mobile/screens/homepage_screen.dart';
 import 'package:face_locker_mobile/screens/log_detail_screen.dart';
@@ -25,29 +27,75 @@ class MyApp extends StatelessWidget {
       title: 'Face Locker',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF101922),
+
+      // Light Theme (Yellow/Gold)
+      theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: AppColorsLight.background,
         fontFamily: 'Inter',
+        primaryColor: AppColorsLight.primary,
+        colorScheme: const ColorScheme.light(
+          primary: AppColorsLight.primary,
+          secondary: AppColorsLight.primaryHighlight,
+          surface: AppColorsLight.surface,
+          error: AppColorsLight.error,
+        ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF101922),
+          backgroundColor: AppColorsLight.background,
           elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle.light,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
           centerTitle: true,
+          iconTheme: IconThemeData(color: AppColorsLight.textPrimary),
           titleTextStyle: TextStyle(
-            color: Colors.white,
+            color: AppColorsLight.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
+            fontFamily: 'Inter',
           ),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF1C242D),
-          selectedItemColor: Color(0xFF137FEC),
-          unselectedItemColor: Color(0xFF9DABB9),
+          backgroundColor: AppColorsLight.surface,
+          selectedItemColor: AppColorsLight.primaryDarker,
+          unselectedItemColor: AppColorsLight.textDisabled,
           type: BottomNavigationBarType.fixed,
         ),
         useMaterial3: true,
       ),
+
+      // Dark Theme (Blue)
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppColorsDark.background,
+        fontFamily: 'Inter',
+        primaryColor: AppColorsDark.primary,
+        colorScheme: const ColorScheme.dark(
+          primary: AppColorsDark.primary,
+          secondary: AppColorsDark.primaryHighlight,
+          surface: AppColorsDark.surface,
+          error: AppColorsDark.error,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColorsDark.background,
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: AppColorsDark.textPrimary),
+          titleTextStyle: TextStyle(
+            color: AppColorsDark.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Inter',
+          ),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: AppColorsDark.surface,
+          selectedItemColor: AppColorsDark.primary,
+          unselectedItemColor: AppColorsDark.textSecondary,
+          type: BottomNavigationBarType.fixed,
+        ),
+        useMaterial3: true,
+      ),
+
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
@@ -61,6 +109,7 @@ class MyApp extends StatelessWidget {
         '/logs': (context) => const AccessLogsScreen(),
         '/log-detail': (context) => const LogDetailScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/settings': (context) => const AppSettingsScreen(),
       },
     );
   }

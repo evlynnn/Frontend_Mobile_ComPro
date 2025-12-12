@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,8 +13,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF101922),
+      backgroundColor: AppColors.background(context),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -28,58 +31,58 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1C252E), // Slightly lighter dark
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock,
                       size: 32,
-                      color: Color(0xFF137FEC), // Primary Blue
+                      color: AppColors.primary(context),
                     ),
                   ),
                 ),
                 const SizedBox(height: 32),
 
                 // 2. Title & Subtitle
-                const Text(
+                Text(
                   'Welcome Back',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Sign in to monitor your home.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Color(0xFF94A3B8), // Slate-400
+                    color: AppColors.disabled(context),
                   ),
                 ),
                 const SizedBox(height: 40),
 
                 // 3. Email Input
-                const Text(
+                Text(
                   'Email or Username',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: AppColors.textPrimary(context)),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color(0xFF1C252E),
+                    fillColor: AppColors.surface(context),
                     hintText: 'Enter your email or username',
-                    hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                    hintStyle: TextStyle(color: AppColors.disabled(context)),
                     prefixIcon:
-                        const Icon(Icons.person, color: Color(0xFF64748B)),
+                        Icon(Icons.person, color: AppColors.disabled(context)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -90,31 +93,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
 
                 // 4. Password Input
-                const Text(
+                Text(
                   'Password',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   obscureText: _obscurePassword,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: AppColors.textPrimary(context)),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color(0xFF1C252E),
+                    fillColor: AppColors.surface(context),
                     hintText: 'Enter your password',
-                    hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                    hintStyle: TextStyle(color: AppColors.disabled(context)),
                     prefixIcon:
-                        const Icon(Icons.lock, color: Color(0xFF64748B)),
+                        Icon(Icons.lock, color: AppColors.disabled(context)),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
                             ? Icons.visibility_off
                             : Icons.visibility,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.disabled(context),
                       ),
                       onPressed: () {
                         setState(() {
@@ -137,10 +140,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.pushNamed(context, '/forgot');
                     },
-                    child: const Text(
+                    child: Text(
                       'Forgot Password?',
                       style: TextStyle(
-                        color: Color(0xFF137FEC), // Primary Blue
+                        color: AppColors.primary(context),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -156,8 +159,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushReplacementNamed(context, '/home');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF137FEC), // Primary Blue
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.primary(context),
+                      foregroundColor:
+                          isDark ? Colors.white : AppColorsLight.stroke,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -176,16 +180,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // 7. Or Login With (Biometric)
                 Row(
-                  children: const [
-                    Expanded(child: Divider(color: Color(0xFF334155))),
+                  children: [
+                    Expanded(child: Divider(color: AppColors.divider(context))),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         'or login with',
-                        style: TextStyle(color: Color(0xFF94A3B8)),
+                        style: TextStyle(color: AppColors.disabled(context)),
                       ),
                     ),
-                    Expanded(child: Divider(color: Color(0xFF334155))),
+                    Expanded(child: Divider(color: AppColors.divider(context))),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -196,12 +200,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 64,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFF334155)),
+                      border: Border.all(color: AppColors.stroke(context)),
                       color: Colors.transparent,
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.fingerprint, size: 32),
-                      color: const Color(0xFF94A3B8),
+                      color: AppColors.disabled(context),
                       onPressed: () {
                         // Handle biometric auth
                       },
@@ -215,18 +219,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Don't have an account? ",
-                      style: TextStyle(color: Color(0xFF94A3B8)),
+                      style: TextStyle(color: AppColors.disabled(context)),
                     ),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, '/register');
                       },
-                      child: const Text(
+                      child: Text(
                         'Sign Up',
                         style: TextStyle(
-                          color: Color(0xFF137FEC),
+                          color: AppColors.primary(context),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
