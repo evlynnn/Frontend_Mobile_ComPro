@@ -11,10 +11,14 @@ import 'package:face_locker_mobile/screens/profile_screen.dart';
 import 'package:face_locker_mobile/screens/register_screen.dart';
 import 'package:face_locker_mobile/screens/reset_screen.dart';
 import 'package:face_locker_mobile/screens/splash_screen.dart';
+import 'package:face_locker_mobile/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
+  // Initialize services
+  ServiceLocator.setup();
+
   runApp(const MyApp());
 }
 
@@ -26,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Face Locker',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.light,
 
       // Light Theme (Yellow/Gold)
       theme: ThemeData(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../services/service_locator.dart';
+import '../models/user.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,12 +11,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       backgroundColor: AppColors.background(context),
       body: SafeArea(
@@ -64,9 +68,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // 3. Email Input
+                // 3. Username Input (Fokus hanya ke Username)
                 Text(
-                  'Email or Username',
+                  'Username',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -75,11 +79,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
+                  controller: _usernameController,
+                  enabled: !_isLoading,
                   style: TextStyle(color: AppColors.textPrimary(context)),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: AppColors.surface(context),
-                    hintText: 'Enter your email or username',
+                    hintText: 'Enter your username',
                     hintStyle: TextStyle(color: AppColors.disabled(context)),
                     prefixIcon:
                         Icon(Icons.person, color: AppColors.disabled(context)),
@@ -103,6 +109,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
+                  controller: _passwordController,
+                  enabled: !_isLoading,
                   obscureText: _obscurePassword,
                   style: TextStyle(color: AppColors.textPrimary(context)),
                   decoration: InputDecoration(
@@ -133,89 +141,79 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                // 5. Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgot');
-                    },
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: AppColors.primary(context),
-                        fontWeight: FontWeight.w600,
-                      ),
+                // Error Message
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.dangerBg(context),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.error(context)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline,
+                            color: AppColors.error(context), size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(
+                              color: AppColors.error(context),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
+                ],
 
-                // 6. Login Button
+                const SizedBox(height: 40),
+
+                // 5. Login Button
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/home');
-                    },
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary(context),
                       foregroundColor:
-                          isDark ? Colors.white : AppColorsLight.stroke,
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : AppColorsLight.stroke,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
+                      disabledBackgroundColor: AppColors.disabled(context),
                     ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
+
+                // Bagian "Or Login With" dan Biometrik DIHAPUS
+
                 const SizedBox(height: 32),
 
-                // 7. Or Login With (Biometric)
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: AppColors.divider(context))),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'or login with',
-                        style: TextStyle(color: AppColors.disabled(context)),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: AppColors.divider(context))),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                Center(
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.stroke(context)),
-                      color: Colors.transparent,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.fingerprint, size: 32),
-                      color: AppColors.disabled(context),
-                      onPressed: () {
-                        // Handle biometric auth
-                      },
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // 8. Sign Up Link
+                // 6. Sign Up Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -244,5 +242,60 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogin() async {
+    // Validation
+    if (_usernameController.text.trim().isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter your username';
+      });
+      return;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter your password';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final request = UserLoginRequest(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      await ServiceLocator.authService.login(request);
+
+      // Login successful - navigate to home
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceAll('ApiException: ', '');
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

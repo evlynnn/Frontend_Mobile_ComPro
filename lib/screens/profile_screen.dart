@@ -108,26 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 32),
 
             // --- Menu Options ---
-            _buildMenuItem(
-              icon: Icons.person,
-              iconColor: AppColors.textPrimary(context),
-              iconBgColor: isDark
-                  ? AppColorsDark.stroke.withOpacity(0.3)
-                  : AppColorsLight.divider,
-              title: 'Edit Profile',
-              onTap: () {},
-            ),
-            const SizedBox(height: 12),
-            _buildMenuItem(
-              icon: Icons.lock,
-              iconColor: AppColors.textPrimary(context),
-              iconBgColor: isDark
-                  ? AppColorsDark.stroke.withOpacity(0.3)
-                  : AppColorsLight.divider,
-              title: 'Change Password',
-              onTap: () {},
-            ),
-            const SizedBox(height: 12),
+            // Hanya menyisakan App Settings
             _buildMenuItem(
               icon: Icons.settings,
               iconColor: AppColors.textPrimary(context),

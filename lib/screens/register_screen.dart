@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../services/service_locator.dart';
+import '../models/user.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -9,14 +11,17 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       backgroundColor: AppColors.background(context),
       body: SafeArea(
@@ -80,12 +85,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    // 3. Email Address
-                    _buildLabel('Email Address'),
+                    // 3. Username Input (Menggantikan Email)
+                    _buildLabel('Username'),
                     const SizedBox(height: 8),
                     _buildTextField(
-                      hintText: 'name@example.com',
-                      inputType: TextInputType.emailAddress,
+                      controller: _usernameController,
+                      hintText: 'Enter your username',
+                      inputType: TextInputType.text,
                     ),
                     const SizedBox(height: 20),
 
@@ -93,6 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _buildLabel('Password'),
                     const SizedBox(height: 8),
                     _buildTextField(
+                      controller: _passwordController,
                       hintText: 'Min. 8 characters',
                       obscureText: _obscurePassword,
                       isPassword: true,
@@ -123,6 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _buildLabel('Confirm Password'),
                     const SizedBox(height: 8),
                     _buildTextField(
+                      controller: _confirmPasswordController,
                       hintText: 'Re-enter password',
                       obscureText: _obscureConfirmPassword,
                       isPassword: true,
@@ -132,6 +140,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
                       },
                     ),
+
+                    // Error Message
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.dangerBg(context),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.error(context)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: AppColors.error(context), size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: TextStyle(
+                                  color: AppColors.error(context),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 20),
 
                     // 6. Terms Checkbox
@@ -207,87 +245,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/home');
-                        },
+                        onPressed: (_agreeToTerms && !_isLoading)
+                            ? _handleRegister
+                            : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary(context),
                           foregroundColor:
-                              isDark ? Colors.white : AppColorsLight.stroke,
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : AppColorsLight.stroke,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(9999),
                           ),
                           elevation: 0,
+                          disabledBackgroundColor: AppColors.disabled(context),
                         ),
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 8. Divider "Or continue with"
-                    Row(
-                      children: [
-                        Expanded(
-                            child: Divider(color: AppColors.divider(context))),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            'Or continue with',
-                            style: TextStyle(
-                              color: AppColors.disabled(context),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                            child: Divider(color: AppColors.divider(context))),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 9. Google Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: AppColors.surface(context),
-                          side: BorderSide(color: AppColors.stroke(context)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          foregroundColor: AppColors.darker(context),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.network(
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuBRhyjEYPjj-6QPYzdhyBpNA0YjcurZDXUJAUvBi6lzySnO4HmDgJQg7DXM_ylQ3veGv6YgJlhHBc32yEbyJoACDSlky3Nlro8HK8eQ2LGKIUjc_w3iBaY2eEaYf94KZ-ZO4WxzWrxE-OFseRGOCxbaWOjuQv_HVUAf9dqKqAYATCvWXuC4rMPO4mAeIY--e-KzbR5uHac-G4G22AgVirPA2kShTzm4zur12hsr5TrFxlCpjQX67MQ0QVvTVkTZUr4we91U5GLHS7k',
-                              height: 20,
-                              width: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'Google',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
+
+                    // Opsi Login Lain (Google/Divider) TELAH DIHAPUS DISINI
 
                     // 10. Login Link
                     Row(
@@ -340,6 +335,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Helper Widget for Text Fields
   Widget _buildTextField({
+    required TextEditingController controller,
     required String hintText,
     bool obscureText = false,
     bool isPassword = false,
@@ -353,6 +349,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         border: Border.all(color: AppColors.stroke(context)),
       ),
       child: TextField(
+        controller: controller,
+        enabled: !_isLoading,
         obscureText: obscureText,
         keyboardType: inputType,
         style: TextStyle(color: AppColors.darker(context), fontSize: 16),
@@ -387,5 +385,84 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleRegister() async {
+    // Validation
+    if (_usernameController.text.trim().isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter a username';
+      });
+      return;
+    }
+
+    if (_passwordController.text.length < 8) {
+      setState(() {
+        _errorMessage = 'Password must be at least 8 characters';
+      });
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      setState(() {
+        _errorMessage = 'Passwords do not match';
+      });
+      return;
+    }
+
+    if (!_agreeToTerms) {
+      setState(() {
+        _errorMessage = 'Please agree to Terms of Service and Privacy Policy';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final request = UserRegisterRequest(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text,
+        confirmPassword: _confirmPasswordController.text,
+      );
+
+      await ServiceLocator.authService.register(request);
+
+      // Auto-login after successful registration
+      final loginRequest = UserLoginRequest(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      await ServiceLocator.authService.login(loginRequest);
+
+      // Navigate to home
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceAll('ApiException: ', '');
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 }
