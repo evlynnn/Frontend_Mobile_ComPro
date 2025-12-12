@@ -31,26 +31,29 @@ class AppColorsLight {
   static const Color shadow = Color(0x10000000);
 }
 
-// Dark Theme Colors (Blue Palette)
+// Dark Theme Colors (Gold Palette - Consistent with Light)
 class AppColorsDark {
   // Primary Colors
-  static const Color primary = Color(0xFF137FEC); // Primary Blue
-  static const Color primaryHighlight = Color(0xFF3B9FFF);
-  static const Color primaryDarker = Color(0xFF0D5EBD);
+  static const Color primary =
+      Color(0xFFFCB90B); // Primary Gold (same as light)
+  static const Color primaryHighlight =
+      Color(0xFFFFECA1); // Highlight (same as light)
+  static const Color primaryDarker =
+      Color(0xFFD18E00); // Darker Gold (same as light)
 
   // Background & Surface
-  static const Color background = Color(0xFF101922); // Background Dark
-  static const Color surface = Color(0xFF1C242D); // Surface Dark
-  static const Color cardSurface = Color(0xFF1C242D);
+  static const Color background = Color(0xFF1A1B1E); // Background Dark
+  static const Color surface = Color(0xFF2C2D31); // Surface Dark
+  static const Color cardSurface = Color(0xFF2C2D31); // Card Surface Dark
 
   // Text
   static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFF9DABB9);
-  static const Color textDisabled = Color(0xFF64748B);
+  static const Color textSecondary = Color(0xFF9E9E9E);
+  static const Color textDisabled = Color(0xFF9E9E9E);
 
   // Borders & Dividers
-  static const Color divider = Color(0xFF283039);
-  static const Color stroke = Color(0xFF334155);
+  static const Color divider = Color(0xFFD9D9D9);
+  static const Color stroke = Color(0xFF45464A);
 
   // Status Colors
   static const Color success = Color(0xFF4ADE80);
@@ -59,7 +62,7 @@ class AppColorsDark {
   static const Color dangerBg = Color(0xFF451A1A);
 
   // Special
-  static const Color shadow = Color(0x30000000);
+  static const Color shadow = Color(0xFF010102); // Deepest Shadow
 }
 
 // Helper class to get colors based on brightness
