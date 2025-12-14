@@ -11,7 +11,6 @@ class AccessLogsScreen extends StatefulWidget {
 }
 
 class _AccessLogsScreenState extends State<AccessLogsScreen> {
-  final int _selectedIndex = 1; // "Logs" is selected (index 1)
   List<Log> _logs = [];
   int _totalCount = 0;
   int _unknownVisitors = 0;
@@ -93,17 +92,6 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
         return 'Specific Date';
       case LogFilterPeriod.range:
         return 'Custom Range';
-    }
-  }
-
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (index == 1) {
-      // Already on logs
-      return;
-    } else if (index == 2) {
-      Navigator.pushReplacementNamed(context, '/profile');
     }
   }
 
@@ -285,40 +273,6 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
                           ),
           ),
         ],
-      ),
-
-      // Bottom Navigation Bar
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppColors.stroke(context), width: 1),
-          ),
-        ),
-        child: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt),
-              activeIcon: Icon(Icons.list_alt_rounded),
-              label: 'Logs',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          selectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-          unselectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-        ),
       ),
     );
   }

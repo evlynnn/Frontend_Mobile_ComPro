@@ -5,6 +5,7 @@ import 'package:face_locker_mobile/screens/forgot_screen.dart';
 import 'package:face_locker_mobile/screens/homepage_screen.dart';
 import 'package:face_locker_mobile/screens/log_detail_screen.dart';
 import 'package:face_locker_mobile/screens/login_screen.dart';
+import 'package:face_locker_mobile/screens/main_navigation_screen.dart';
 import 'package:face_locker_mobile/screens/notifications_screen.dart';
 import 'package:face_locker_mobile/screens/otp_verification.dart';
 import 'package:face_locker_mobile/screens/profile_screen.dart';
@@ -108,11 +109,9 @@ class MyApp extends StatelessWidget {
         '/forgot': (context) => const ForgotPasswordScreen(),
         '/otp': (context) => const OtpVerificationScreen(),
         '/reset': (context) => const ResetPasswordScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => const MainNavigationScreen(),
         '/notifications': (context) => const NotificationsScreen(),
-        '/logs': (context) => const AccessLogsScreen(),
         '/log-detail': (context) => const LogDetailScreen(),
-        '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const AppSettingsScreen(),
       },
     );

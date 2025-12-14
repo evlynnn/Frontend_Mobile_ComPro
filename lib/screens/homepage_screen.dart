@@ -11,7 +11,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int _selectedIndex = 0;
   List<Log> _recentLogs = [];
   int _totalCount = 0;
   int _unknownVisitors = 0;
@@ -43,17 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _errorMessage = e.toString();
         _isLoading = false;
       });
-    }
-  }
-
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      // Already on home
-      return;
-    } else if (index == 1) {
-      Navigator.pushNamed(context, '/logs');
-    } else if (index == 2) {
-      Navigator.pushNamed(context, '/profile');
     }
   }
 
@@ -300,40 +288,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   )),
           ],
-        ),
-      ),
-
-      // Bottom Navigation Bar
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppColors.stroke(context), width: 1),
-          ),
-          color: AppColors.surface(context).withOpacity(0.8),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_filled),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt),
-              label: 'Logs',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          selectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-          unselectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ),
     );

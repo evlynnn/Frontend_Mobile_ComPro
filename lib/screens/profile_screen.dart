@@ -11,7 +11,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final int _selectedIndex = 2; // "Profile" is selected (index 2)
   User? _currentUser;
   bool _isLoading = true;
 
@@ -76,17 +75,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         }
       }
-    }
-  }
-
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (index == 1) {
-      Navigator.pushReplacementNamed(context, '/logs');
-    } else if (index == 2) {
-      // Already on profile
-      return;
     }
   }
 
@@ -231,40 +219,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppColors.stroke(context), width: 1),
-          ),
-          color: AppColors.surface(context).withOpacity(0.8),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_filled),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt),
-              label: 'Logs',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          selectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-          unselectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ),
     );
