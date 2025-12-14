@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../services/service_locator.dart';
+import '../models/user.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,6 +12,72 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final int _selectedIndex = 2; // "Profile" is selected (index 2)
+  User? _currentUser;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get user info from token or storage if available
+      // For now, we'll use a placeholder since API doesn't have /me endpoint
+      // You can add user info when login and store in SharedPreferences
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        await ServiceLocator.authService.logout();
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Logout failed: ${e.toString()}')),
+          );
+        }
+      }
+    }
+  }
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -24,8 +92,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -82,7 +148,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Icon(
                       Icons.edit,
                       size: 16,
-                      color: isDark ? Colors.white : AppColorsLight.stroke,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : AppColorsLight.stroke,
                     ),
                   ),
                 ),
@@ -112,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildMenuItem(
               icon: Icons.settings,
               iconColor: AppColors.textPrimary(context),
-              iconBgColor: isDark
+              iconBgColor: Theme.of(context).brightness == Brightness.dark
                   ? AppColorsDark.stroke.withOpacity(0.3)
                   : AppColorsLight.divider,
               title: 'App Settings',
@@ -124,13 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // --- Logout Section ---
             const SizedBox(height: 32),
             InkWell(
-              onTap: () {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              },
+              onTap: _handleLogout,
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 width: double.infinity,

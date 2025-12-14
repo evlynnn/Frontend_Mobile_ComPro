@@ -5,8 +5,8 @@ class Log {
   final String name;
   final String role;
   final String timestamp;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   Log({
     required this.id,
@@ -15,8 +15,8 @@ class Log {
     required this.name,
     required this.role,
     required this.timestamp,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Log.fromJson(Map<String, dynamic> json) {
@@ -27,8 +27,12 @@ class Log {
       name: json['name'] as String,
       role: json['role'] as String,
       timestamp: json['timestamp'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 
@@ -40,8 +44,8 @@ class Log {
       'name': name,
       'role': role,
       'timestamp': timestamp,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
+      if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
     };
   }
 }

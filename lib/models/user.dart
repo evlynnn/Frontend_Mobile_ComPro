@@ -14,12 +14,17 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    print("User JSON: $json");
     return User(
       id: json['id'] as int,
       username: json['username'] as String,
       role: json['role'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] == null
+          ? DateTime.now()
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? DateTime.now()
+          : DateTime.parse(json['updated_at'] as String),
     );
   }
 
@@ -83,6 +88,7 @@ class LoginResponse {
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    print("JSON: $json");
     return LoginResponse(
       message: json['message'] as String,
       token: json['token'] as String,

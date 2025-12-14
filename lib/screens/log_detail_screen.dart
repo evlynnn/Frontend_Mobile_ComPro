@@ -1,8 +1,29 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../models/log.dart';
 
-class LogDetailScreen extends StatelessWidget {
+class LogDetailScreen extends StatefulWidget {
   const LogDetailScreen({super.key});
+
+  @override
+  State<LogDetailScreen> createState() => _LogDetailScreenState();
+}
+
+class _LogDetailScreenState extends State<LogDetailScreen> {
+  Log? _log;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_log == null) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Log) {
+        setState(() {
+          _log = args;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,86 +45,98 @@ class LogDetailScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Primary Info Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface(context).withOpacity(0.5),
-                borderRadius: BorderRadius.circular(8),
+      body: _log == null
+          ? Center(
+              child: Text(
+                'No log data available',
+                style: TextStyle(color: AppColors.disabled(context)),
               ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Status Badge
+                  // Primary Info Card
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.success(context).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(999),
+                      color: AppColors.surface(context).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(
-                      'Authorized',
-                      style: TextStyle(
-                        color: AppColors.success(context),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Status Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _log!.authorized
+                                ? AppColors.success(context).withOpacity(0.2)
+                                : AppColors.error(context).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            _log!.authorized ? 'Authorized' : 'Unauthorized',
+                            style: TextStyle(
+                              color: _log!.authorized
+                                  ? AppColors.success(context)
+                                  : AppColors.error(context),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _log!.name,
+                          style: TextStyle(
+                            color: AppColors.darker(context),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _log!.authorized ? 'Access Granted' : 'Access Denied',
+                          style: TextStyle(
+                            color: AppColors.disabled(context),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'John Appleseed',
-                    style: TextStyle(
-                      color: AppColors.darker(context),
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Unlocked Front Door',
-                    style: TextStyle(
-                      color: AppColors.disabled(context),
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Details Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface(context).withOpacity(0.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  _buildDetailRow(context, 'Time', '10:42 AM, October 26, 2023',
-                      showBorder: true),
-                  _buildDetailRow(context, 'Visitor Type', 'Delivery',
-                      showBorder: true),
-                  _buildDetailRow(context, 'AI Confidence', '99.8%',
-                      showBorder: true),
-                  _buildDetailRow(context, 'Method', 'Facial Recognition',
-                      showBorder: true),
-                  _buildDetailRow(context, 'Event ID', 'a1b2-c3d4-e5f6-g7h8',
-                      showBorder: false),
+                  // Details Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface(context).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildDetailRow(context, 'Time', _log!.timestamp,
+                            showBorder: true),
+                        _buildDetailRow(context, 'Role', _log!.role,
+                            showBorder: true),
+                        _buildDetailRow(context, 'AI Confidence',
+                            '${(_log!.confidence * 100).toStringAsFixed(1)}%',
+                            showBorder: true),
+                        _buildDetailRow(context, 'Method', 'Facial Recognition',
+                            showBorder: true),
+                        _buildDetailRow(context, 'Log ID', _log!.id.toString(),
+                            showBorder: false),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 

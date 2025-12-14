@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.18.8:8080';
+  static const String baseUrl = 'http://192.168.1.60:8080';
 
   String? _token;
 

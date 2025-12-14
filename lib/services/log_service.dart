@@ -27,6 +27,8 @@ class LogService {
         params.toQueryParams(),
         requiresAuth: true,
       );
+
+      print('Filtered Logs Response: $response');
       return LogStatsResponse.fromJson(response);
     } catch (e) {
       rethrow;

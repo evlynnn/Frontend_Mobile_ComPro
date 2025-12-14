@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../services/service_locator.dart';
+import '../models/log.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,6 +12,39 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final int _selectedIndex = 0;
+  List<Log> _recentLogs = [];
+  int _totalCount = 0;
+  int _unknownVisitors = 0;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTodayData();
+  }
+
+  Future<void> _loadTodayData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await ServiceLocator.logService.getTodayLogs();
+      setState(() {
+        _recentLogs = response.data.take(5).toList();
+        _totalCount = response.data.length;
+        _unknownVisitors = response.data.where((log) => !log.authorized).length;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -69,57 +104,64 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Total Detections Column
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '45',
-                            style: TextStyle(
-                              color: AppColors.textPrimary(context),
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              height: 1.0,
-                            ),
+                  _isLoading
+                      ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: CircularProgressIndicator(),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Total Detections',
-                            style: TextStyle(
-                              color: AppColors.disabled(context),
-                              fontSize: 16,
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Total Detections Column
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '$_totalCount',
+                                  style: TextStyle(
+                                    color: AppColors.textPrimary(context),
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.0,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Total Detections',
+                                  style: TextStyle(
+                                    color: AppColors.disabled(context),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      // Unknown Alerts Column
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '2',
-                            style: TextStyle(
-                              color: AppColors.primaryDarker(context),
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              height: 1.0,
+                            // Unknown Alerts Column
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '$_unknownVisitors',
+                                  style: TextStyle(
+                                    color: AppColors.primaryDarker(context),
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.0,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Unknown Alerts',
+                                  style: TextStyle(
+                                    color: AppColors.disabled(context),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Unknown Alerts',
-                            style: TextStyle(
-                              color: AppColors.disabled(context),
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          ],
+                        ),
                   const SizedBox(height: 24),
                   Divider(color: AppColors.divider(context), height: 1),
                   const SizedBox(height: 16),
@@ -148,122 +190,120 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 16),
 
-            // Activity Item 1 - Front Door Unlocked
-            Row(
-              children: [
-                // Icon Container
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryHighlight(context),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.lock_open_outlined,
-                    color: AppColors.primaryDarker(context),
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                // Text Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Front Door Unlocked',
-                        style: TextStyle(
-                          color: AppColors.textPrimary(context),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        'John Doe',
-                        style: TextStyle(
-                          color: AppColors.disabled(context),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Time
-                Text(
-                  '2 min ago',
-                  style: TextStyle(
-                    color: AppColors.disabled(context),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Activity Item 2 - Motion Detected
-            Row(
-              children: [
-                // Icon Container
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface(context),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.divider(context),
-                      width: 1,
+            // Activity Items from API
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (_errorMessage != null)
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: AppColors.error(context),
                     ),
-                  ),
-                  child: Icon(
-                    Icons.videocam_outlined,
-                    color: AppColors.textPrimary(context),
-                    size: 24,
+                    const SizedBox(height: 8),
+                    Text(
+                      _errorMessage!,
+                      style: TextStyle(color: AppColors.error(context)),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: _loadTodayData,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
+            else if (_recentLogs.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Text(
+                    'No activity today',
+                    style: TextStyle(color: AppColors.disabled(context)),
                   ),
                 ),
-                const SizedBox(width: 16),
-                // Text Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Motion Detected',
-                        style: TextStyle(
-                          color: AppColors.textPrimary(context),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+              )
+            else
+              ..._recentLogs.map((log) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/log-detail',
+                          arguments: log,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          // Icon Container
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: log.authorized
+                                  ? const Color(0xFFD1FAE5) // green-100
+                                  : const Color(0xFFFEE2E2), // red-100
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              log.authorized
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                              color: log.authorized
+                                  ? const Color(0xFF10B981) // green-500
+                                  : const Color(0xFFEF4444), // red-500
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // Text Content
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  log.name,
+                                  style: TextStyle(
+                                    color: AppColors.textPrimary(context),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  log.authorized
+                                      ? 'Access Granted'
+                                      : 'Access Denied',
+                                  style: TextStyle(
+                                    color: AppColors.disabled(context),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Time
+                          Text(
+                            log.timestamp.length >= 16
+                                ? log.timestamp.substring(11, 16)
+                                : log.timestamp,
+                            style: TextStyle(
+                              color: AppColors.disabled(context),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Backyard Camera',
-                        style: TextStyle(
-                          color: AppColors.disabled(context),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Time
-                Text(
-                  '1 hr ago',
-                  style: TextStyle(
-                    color: AppColors.disabled(context),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+                    ),
+                  )),
           ],
         ),
       ),
+
+      // Bottom Navigation Bar
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
