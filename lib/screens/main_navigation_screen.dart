@@ -59,9 +59,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: 'Logs',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: 'Settings',
+              icon: Icon(Icons.more_horiz_rounded),
+              activeIcon: Icon(Icons.more_horiz_rounded),
+              label: 'More',
             ),
           ],
           currentIndex: _selectedIndex,

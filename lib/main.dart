@@ -1,8 +1,9 @@
 import 'package:face_locker_mobile/constants/colors.dart';
-import 'package:face_locker_mobile/screens/access_logs_screen.dart';
+import 'package:face_locker_mobile/screens/about_screen.dart';
 import 'package:face_locker_mobile/screens/app_settings_screen.dart';
+import 'package:face_locker_mobile/screens/contact_support_screen.dart';
+import 'package:face_locker_mobile/screens/faq_screen.dart';
 import 'package:face_locker_mobile/screens/forgot_screen.dart';
-import 'package:face_locker_mobile/screens/homepage_screen.dart';
 import 'package:face_locker_mobile/screens/log_detail_screen.dart';
 import 'package:face_locker_mobile/screens/login_screen.dart';
 import 'package:face_locker_mobile/screens/main_navigation_screen.dart';
@@ -121,6 +122,9 @@ class MyApp extends StatelessWidget {
             '/notifications': (context) => const NotificationsScreen(),
             '/log-detail': (context) => const LogDetailScreen(),
             '/settings': (context) => const AppSettingsScreen(),
+            '/about': (context) => const AboutScreen(),
+            '/faq': (context) => const FaqScreen(),
+            '/contact-support': (context) => const ContactSupportScreen(),
           },
         );
       },

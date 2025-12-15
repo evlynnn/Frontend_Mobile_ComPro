@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../constants/colors.dart';
 import '../services/service_locator.dart';
 import '../models/log.dart';
@@ -220,6 +223,172 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
     }
   }
 
+  void _showExportOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.divider(context),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Export Logs',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary(context),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child:
+                    const Icon(Icons.table_chart_rounded, color: Colors.green),
+              ),
+              title: Text(
+                'Export as CSV',
+                style: TextStyle(color: AppColors.textPrimary(context)),
+              ),
+              subtitle: Text(
+                'Spreadsheet format',
+                style: TextStyle(color: AppColors.textSecondary(context)),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _exportToCSV();
+              },
+            ),
+            ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child:
+                    const Icon(Icons.description_rounded, color: Colors.blue),
+              ),
+              title: Text(
+                'Export as Text',
+                style: TextStyle(color: AppColors.textPrimary(context)),
+              ),
+              subtitle: Text(
+                'Plain text format',
+                style: TextStyle(color: AppColors.textSecondary(context)),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _exportToText();
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportToCSV() async {
+    try {
+      final StringBuffer csv = StringBuffer();
+      csv.writeln('Name,Status,Date,Time,Timestamp');
+
+      for (final log in _filteredLogs) {
+        final status = log.authorized ? 'Authorized' : 'Unauthorized';
+        final date =
+            log.timestamp.length >= 10 ? log.timestamp.substring(0, 10) : '';
+        final time =
+            log.timestamp.length >= 16 ? log.timestamp.substring(11, 16) : '';
+        csv.writeln(
+            '"${log.name}","$status","$date","$time","${log.timestamp}"');
+      }
+
+      await _shareFile(csv.toString(), 'access_logs.csv', 'text/csv');
+    } catch (e) {
+      _showExportError(e.toString());
+    }
+  }
+
+  Future<void> _exportToText() async {
+    try {
+      final StringBuffer text = StringBuffer();
+      text.writeln('Face Locker - Access Logs Report');
+      text.writeln(
+          'Generated: ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}');
+      text.writeln('Total Logs: ${_filteredLogs.length}');
+      text.writeln('=' * 50);
+      text.writeln('');
+
+      for (final log in _filteredLogs) {
+        final status = log.authorized ? '✓ Authorized' : '✗ Unauthorized';
+        final date =
+            log.timestamp.length >= 10 ? log.timestamp.substring(0, 10) : '';
+        final time =
+            log.timestamp.length >= 16 ? log.timestamp.substring(11, 16) : '';
+        text.writeln('$date $time - ${log.name}');
+        text.writeln('Status: $status');
+        text.writeln('-' * 30);
+      }
+
+      await _shareFile(text.toString(), 'access_logs.txt', 'text/plain');
+    } catch (e) {
+      _showExportError(e.toString());
+    }
+  }
+
+  Future<void> _shareFile(
+      String content, String filename, String mimeType) async {
+    final directory = await getTemporaryDirectory();
+    final file = File('${directory.path}/$filename');
+    await file.writeAsString(content);
+
+    await Share.shareXFiles(
+      [XFile(file.path, mimeType: mimeType)],
+      subject: 'Face Locker Access Logs',
+    );
+  }
+
+  void _showExportError(String error) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('Export failed: $error')),
+            ],
+          ),
+          backgroundColor: AppColors.error(context),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -236,6 +405,17 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
             fontSize: 18,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.file_download_outlined,
+              color: AppColors.textPrimary(context),
+            ),
+            onPressed: _filteredLogs.isEmpty ? null : _showExportOptions,
+            tooltip: 'Export Logs',
+          ),
+          const SizedBox(width: 4),
+        ],
       ),
       body: Column(
         children: [
