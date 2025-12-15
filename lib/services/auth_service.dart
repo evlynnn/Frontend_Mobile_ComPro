@@ -1,10 +1,21 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import 'api_service.dart';
 
 class AuthService {
+  static const String _tokenKey = 'auth_token';
   final ApiService _apiService;
 
   AuthService(this._apiService);
+
+  /// Initialize auth service - load saved token
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedToken = prefs.getString(_tokenKey);
+    if (savedToken != null) {
+      _apiService.setToken(savedToken);
+    }
+  }
 
   // Register new user
   Future<UserResponse> register(UserRegisterRequest request) async {
@@ -28,8 +39,9 @@ class AuthService {
       );
       final loginResponse = LoginResponse.fromJson(response);
 
-      // Save token in ApiService
+      // Save token in ApiService and persist
       _apiService.setToken(loginResponse.token);
+      await _saveToken(loginResponse.token);
 
       return loginResponse;
     } catch (e) {
@@ -46,18 +58,43 @@ class AuthService {
         requiresAuth: false,
       );
 
-      // Clear token from ApiService
+      // Clear token from ApiService and storage
       _apiService.clearToken();
+      await _clearToken();
     } catch (e) {
       // Even if request fails, clear local token
       _apiService.clearToken();
+      await _clearToken();
       rethrow;
     }
   }
 
   // Check if user is logged in
-  bool isLoggedIn() {
-    return _apiService.token != null;
+  Future<bool> isLoggedIn() async {
+    // First check in-memory token
+    if (_apiService.token != null) {
+      return true;
+    }
+    // Then check persisted token
+    final prefs = await SharedPreferences.getInstance();
+    final savedToken = prefs.getString(_tokenKey);
+    if (savedToken != null) {
+      _apiService.setToken(savedToken);
+      return true;
+    }
+    return false;
+  }
+
+  // Save token to persistent storage
+  Future<void> _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+  }
+
+  // Clear token from persistent storage
+  Future<void> _clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
   }
 
   // Get current token

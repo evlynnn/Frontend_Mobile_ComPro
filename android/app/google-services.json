@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "460977826406",
+    "project_id": "face-lock-83ccc",
+    "storage_bucket": "face-lock-83ccc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460977826406:android:c4a6a087e8080f4e081ba7",
+        "android_client_info": {
+          "package_name": "com.example.face_locker_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDllR9RFXrDB5hiVjvwKMek_zMFMTnYrn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

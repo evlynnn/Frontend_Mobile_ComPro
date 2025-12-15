@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/colors.dart';
+import '../services/service_locator.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,11 +14,50 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // Wait for splash animation
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    // Check if user is logged in (has valid token)
+    final authService = ServiceLocator.authService;
+    final isLoggedIn = await authService.isLoggedIn();
+
+    if (!isLoggedIn) {
+      // Not logged in, go to login screen
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/login');
       }
-    });
+      return;
+    }
+
+    // User is logged in, check if biometric is enabled
+    final biometricService = ServiceLocator.biometricService;
+    final biometricEnabled = await biometricService.isBiometricEnabled();
+    final biometricAvailable = await biometricService.isBiometricAvailable();
+
+    if (biometricEnabled && biometricAvailable) {
+      // Biometric is enabled, authenticate
+      final authenticated = await biometricService.authenticate(
+        reason: 'Authenticate to access Face Locker',
+      );
+
+      if (authenticated && mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (mounted) {
+        // Authentication failed, go to login
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } else {
+      // Biometric not enabled, go directly to home
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    }
   }
 
   @override

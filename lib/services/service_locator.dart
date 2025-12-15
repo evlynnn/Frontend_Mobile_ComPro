@@ -1,5 +1,6 @@
 import 'api_service.dart';
 import 'auth_service.dart';
+import 'biometric_service.dart';
 import 'log_service.dart';
 
 /// Service Locator for managing service instances
@@ -15,6 +16,7 @@ class ServiceLocator {
   static final ApiService _apiService = ApiService();
   static late final AuthService _authService;
   static late final LogService _logService;
+  static final BiometricService _biometricService = BiometricService();
 
   /// Initialize all services
   static void setup() {
@@ -30,4 +32,7 @@ class ServiceLocator {
 
   /// Get ApiService instance (if needed directly)
   static ApiService get apiService => _apiService;
+
+  /// Get BiometricService instance
+  static BiometricService get biometricService => _biometricService;
 }

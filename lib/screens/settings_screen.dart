@@ -4,8 +4,71 @@ import '../constants/colors.dart';
 import '../services/theme_service.dart';
 import '../services/service_locator.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _biometricAvailable = false;
+  bool _biometricEnabled = false;
+  String _biometricTypeName = 'Biometric';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBiometricState();
+  }
+
+  Future<void> _loadBiometricState() async {
+    final biometricService = ServiceLocator.biometricService;
+    final available = await biometricService.isBiometricAvailable();
+    final enabled = await biometricService.isBiometricEnabled();
+    final typeName = await biometricService.getBiometricTypeName();
+
+    if (mounted) {
+      setState(() {
+        _biometricAvailable = available;
+        _biometricEnabled = enabled;
+        _biometricTypeName = typeName;
+      });
+    }
+  }
+
+  Future<void> _toggleBiometric(bool value) async {
+    final biometricService = ServiceLocator.biometricService;
+
+    if (value) {
+      // Enable biometric - requires authentication
+      final success = await biometricService.enableBiometric();
+      if (success && mounted) {
+        setState(() => _biometricEnabled = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Text('$_biometricTypeName login enabled'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } else {
+      // Disable biometric
+      await biometricService.disableBiometric();
+      if (mounted) {
+        setState(() => _biometricEnabled = false);
+      }
+    }
+  }
 
   Future<void> _handleLogout(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -100,6 +163,21 @@ class SettingsScreen extends StatelessWidget {
               value: themeService.pushNotificationsEnabled,
               onChanged: (value) => themeService.setPushNotifications(value),
             ),
+
+            // Biometric Login Toggle (only show if available)
+            if (_biometricAvailable) ...[
+              const SizedBox(height: 10),
+              _buildToggleItem(
+                context,
+                icon: Icons.fingerprint_rounded,
+                title: '$_biometricTypeName Login',
+                subtitle: _biometricEnabled
+                    ? 'Quick unlock enabled'
+                    : 'Use $_biometricTypeName to unlock app',
+                value: _biometricEnabled,
+                onChanged: _toggleBiometric,
+              ),
+            ],
 
             const SizedBox(height: 24),
 
