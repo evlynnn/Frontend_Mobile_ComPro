@@ -70,8 +70,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             icon: Icons.how_to_reg,
             iconColor: AppColors.primary(context),
             iconBgColor: AppColors.primary(context).withOpacity(0.2),
+            titleColor: AppColors.textPrimary(context),
             title: 'Known Person Detected',
-            subtitle: 'John Doe at Front Door',
+            subtitle: 'John Doe at Door',
             time: '5:28 PM',
             timeColor: const Color(0xFF137FEC), // primary
             imageUrl:
@@ -85,6 +86,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             icon: Icons.person_search,
             iconColor: AppColors.warning(context),
             iconBgColor: AppColors.warning(context).withOpacity(0.2),
+            titleColor: AppColors.textPrimary(context),
             title: 'Unknown Person Detected',
             subtitle: 'Front Door',
             time: '5:30 PM',
@@ -126,6 +128,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             icon: Icons.how_to_reg,
             iconColor: AppColors.primary(context),
             iconBgColor: AppColors.primary(context).withOpacity(0.2),
+            titleColor: AppColors.textPrimary(context),
             title: 'Known Person Detected',
             subtitle: 'Jane Smith at Garage',
             time: 'Yesterday, 9:12 AM',

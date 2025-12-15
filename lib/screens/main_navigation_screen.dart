@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import 'homepage_screen.dart';
 import 'access_logs_screen.dart';
-import 'profile_screen.dart';
+import 'settings_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -14,12 +14,11 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
 
-  // List of screens to display
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const AccessLogsScreen(),
-    const ProfileScreen(),
-  ];
+  void _navigateToLogs() {
+    setState(() {
+      _selectedIndex = 1;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -29,10 +28,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // List of screens to display
+    final List<Widget> screens = [
+      HomeScreen(onViewAllLogs: _navigateToLogs),
+      const AccessLogsScreen(),
+      const SettingsScreen(),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -53,9 +59,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: 'Logs',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings),
+              label: 'Settings',
             ),
           ],
           currentIndex: _selectedIndex,

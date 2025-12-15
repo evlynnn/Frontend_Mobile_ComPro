@@ -120,12 +120,19 @@ enum LogFilterPeriod {
   range,
 }
 
+enum LogStatusFilter {
+  all,
+  authorized,
+  unauthorized,
+}
+
 class LogFilterParams {
   final LogFilterPeriod? period;
   final String? date; // YYYY-MM-DD
   final String? start; // YYYY-MM-DD
   final String? end; // YYYY-MM-DD
   final String? name;
+  final LogStatusFilter? status;
 
   LogFilterParams({
     this.period,
@@ -133,6 +140,7 @@ class LogFilterParams {
     this.start,
     this.end,
     this.name,
+    this.status,
   });
 
   Map<String, String> toQueryParams() {
