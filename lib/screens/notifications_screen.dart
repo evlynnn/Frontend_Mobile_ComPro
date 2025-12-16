@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../constants/colors.dart';
+import '../services/service_locator.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -9,231 +11,331 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final int _selectedIndex = 1; // "Logs" active index based on HTML
+  List<Map<String, dynamic>> _notifications = [];
+  bool _isLoading = true;
 
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (index == 1) {
-      // Already on notifications
-      return;
-    } else if (index == 2) {
-      Navigator.pushReplacementNamed(context, '/profile');
+  @override
+  void initState() {
+    super.initState();
+    _loadNotifications();
+  }
+
+  Future<void> _loadNotifications() async {
+    setState(() => _isLoading = true);
+    final notifications =
+        await ServiceLocator.notificationService.getSavedNotifications();
+    if (mounted) {
+      setState(() {
+        _notifications = notifications;
+        _isLoading = false;
+      });
     }
+  }
+
+  Future<void> _clearAllNotifications() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface(context),
+        title: Text(
+          'Clear All Notifications',
+          style: TextStyle(color: AppColors.textPrimary(context)),
+        ),
+        content: Text(
+          'Are you sure you want to delete all notifications?',
+          style: TextStyle(color: AppColors.textSecondary(context)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel',
+                style: TextStyle(color: AppColors.textSecondary(context))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Clear All',
+                style: TextStyle(color: AppColors.error(context))),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ServiceLocator.notificationService.clearAllNotifications();
+      await _loadNotifications();
+    }
+  }
+
+  Future<void> _deleteNotification(String id) async {
+    await ServiceLocator.notificationService.deleteNotification(id);
+    await _loadNotifications();
+  }
+
+  String _formatTimestamp(String timestamp) {
+    try {
+      final date = DateTime.parse(timestamp);
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = today.subtract(const Duration(days: 1));
+      final notificationDate = DateTime(date.year, date.month, date.day);
+
+      if (notificationDate == today) {
+        return DateFormat('h:mm a').format(date);
+      } else if (notificationDate == yesterday) {
+        return 'Yesterday, ${DateFormat('h:mm a').format(date)}';
+      } else {
+        return DateFormat('MMM d, h:mm a').format(date);
+      }
+    } catch (e) {
+      return timestamp;
+    }
+  }
+
+  Map<String, List<Map<String, dynamic>>> _groupNotificationsByDate() {
+    final Map<String, List<Map<String, dynamic>>> grouped = {};
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    for (final notification in _notifications) {
+      try {
+        final date = DateTime.parse(notification['timestamp'] ?? '');
+        final notificationDate = DateTime(date.year, date.month, date.day);
+
+        String key;
+        if (notificationDate == today) {
+          key = 'Today';
+        } else if (notificationDate == yesterday) {
+          key = 'Yesterday';
+        } else {
+          key = DateFormat('MMMM d, yyyy').format(date);
+        }
+
+        grouped.putIfAbsent(key, () => []);
+        grouped[key]!.add(notification);
+      } catch (e) {
+        grouped.putIfAbsent('Other', () => []);
+        grouped['Other']!.add(notification);
+      }
+    }
+
+    return grouped;
   }
 
   @override
   Widget build(BuildContext context) {
+    final groupedNotifications = _groupNotificationsByDate();
+
     return Scaffold(
-      // Top App Bar
+      backgroundColor: AppColors.background(context),
       appBar: AppBar(
-        title: const Text('Notifications'),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              // color: Colors.transparent, // Default
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.delete_sweep_outlined),
-              color: AppColors.disabled(context),
-              onPressed: () {
-                // Handle delete action
-              },
-            ),
+        backgroundColor: AppColors.background(context),
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Notifications',
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
+        ),
+        actions: [
+          if (_notifications.isNotEmpty)
+            IconButton(
+              icon: Icon(
+                Icons.delete_sweep_outlined,
+                color: AppColors.textSecondary(context),
+              ),
+              onPressed: _clearAllNotifications,
+              tooltip: 'Clear all',
+            ),
+          const SizedBox(width: 8),
         ],
       ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _notifications.isEmpty
+              ? _buildEmptyState()
+              : RefreshIndicator(
+                  onRefresh: _loadNotifications,
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: groupedNotifications.length,
+                    itemBuilder: (context, index) {
+                      final dateKey =
+                          groupedNotifications.keys.elementAt(index);
+                      final notifications = groupedNotifications[dateKey]!;
 
-      // Main Content
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (index > 0) const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              dateKey,
+                              style: TextStyle(
+                                color: AppColors.textSecondary(context),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          ...notifications.map((notification) => Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _buildNotificationItem(notification),
+                              )),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // New Today Section
-          const Padding(
-            padding: EdgeInsets.only(bottom: 12),
-            child: Text(
-              'Today',
-              style: TextStyle(
-                color: Color(0xFF9CA3AF),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppColors.primary(context).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.notifications_off_outlined,
+              size: 40,
+              color: AppColors.primary(context),
             ),
           ),
-
-          // Known Person Detected
-          _buildNotificationItem(
-            icon: Icons.how_to_reg,
-            iconColor: AppColors.primary(context),
-            iconBgColor: AppColors.primary(context).withOpacity(0.2),
-            titleColor: AppColors.textPrimary(context),
-            title: 'Known Person Detected',
-            subtitle: 'John Doe at Door',
-            time: '5:28 PM',
-            timeColor: const Color(0xFF137FEC), // primary
-            imageUrl:
-                "https://lh3.googleusercontent.com/aida-public/AB6AXuCoWdHGlH0yTf8sbpwYg2FP0rPc81LPQygUxm93kYaYNmKgPmuejMq1kSL8VlFfHaGO2B4C7mk7SGjKwbdbbLvrGuj9dbxD8s7VX5QkHDGP2fJ0vJQHjpIYINCkB4JsQJ3SMnmBN3-viVUykmRmzncovJy9z_0pHeHAX_kezJ0liF6H_yfzDD1UOL0U-pRGRbq7cY7i_nUnkZ_tawEgBjz_Ydr2THGClx-Eb1dYZogVmwXNGECBY30txzFabpNnYOYTRieaFDu3s3w",
-          ),
-
-          const SizedBox(height: 12),
-
-          // Unknown Person Detected
-          _buildNotificationItem(
-            icon: Icons.person_search,
-            iconColor: AppColors.warning(context),
-            iconBgColor: AppColors.warning(context).withOpacity(0.2),
-            titleColor: AppColors.textPrimary(context),
-            title: 'Unknown Person Detected',
-            subtitle: 'Front Door',
-            time: '5:30 PM',
-            timeColor: const Color(0xFF9CA3AF), // gray-400
-            imageUrl:
-                "https://lh3.googleusercontent.com/aida-public/AB6AXuBvZF0VIQ7ClC90t_3i3REENz4awrTgeUc2ph-FUPhhx8g7qb4dZu4p6EIcSghKURPa_1eh4iAxuofhW4yZaeFzpYMYiYan-v4mdgyGVS3CgPhAaYtPK99TKk6P_cdSZhY_2h565pppMNNCLgUtlSHx0___IfwsLNH4FWkymCFece3EWjhketPchZuUVIgizIH7cV2DjmmgFA4cmtZNcqi3WSXiMuofpN6hjlBCi6R5W1S3LeuD_C17Z8g3kEUYpQbSJ9_GCc0-D8s",
-          ),
-
-          // Yesterday Section
-          const Padding(
-            padding: EdgeInsets.only(top: 16, bottom: 12),
-            child: Text(
-              'Yesterday',
-              style: TextStyle(
-                color: Color(0xFF9CA3AF), // gray-400
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+          const SizedBox(height: 16),
+          Text(
+            'No Notifications',
+            style: TextStyle(
+              color: AppColors.textPrimary(context),
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
             ),
           ),
-
-          // Forced Entry Alert (Red)
-          _buildNotificationItem(
-            icon: Icons.meeting_room_outlined,
-            iconColor: AppColors.error(context),
-            iconBgColor: AppColors.error(context).withOpacity(0.2),
-            bgColor: AppColors.error(context).withOpacity(0.1),
-            title: 'Forced Entry Alert',
-            titleColor: AppColors.error(context),
-            subtitle: 'Back Door',
-            time: '2:15 AM',
-            timeColor: const Color(0xFF9CA3AF), // gray-400
+          const SizedBox(height: 8),
+          Text(
+            'You\'re all caught up!',
+            style: TextStyle(
+              color: AppColors.textSecondary(context),
+              fontSize: 14,
+            ),
           ),
-
-          const SizedBox(height: 12),
-
-          // Another Known Person (Jane Smith)
-          _buildNotificationItem(
-            icon: Icons.how_to_reg,
-            iconColor: AppColors.primary(context),
-            iconBgColor: AppColors.primary(context).withOpacity(0.2),
-            titleColor: AppColors.textPrimary(context),
-            title: 'Known Person Detected',
-            subtitle: 'Jane Smith at Garage',
-            time: 'Yesterday, 9:12 AM',
-            timeColor: const Color(0xFF137FEC),
-            imageUrl:
-                "https://lh3.googleusercontent.com/aida-public/AB6AXuAntv2AbE-lTbTDRZ7lWHcw4X0Hm6y6j8LgDGYcMDbfsoldjlfjFTjqqtbZaW7GSTOec_DTSa33gCLj-V2g7qDEPJnekbTYnUU7sP16pnh9yFrPFQOHHRMTGBf_bq34ikFGo1zlBzLlxoK39Wq6xvRjPBr-TXNhfgW4MMfEoMGVEarQz53h2XIfTzlhjGzjfeinQ-8j2bqOubUgovqI6Dy6W15FGU3EJ5CX3AmsFHtzU-Cw3WLuxuXYLfrzS732j_AKvHOkSnss1F4",
-          ),
-
-          const SizedBox(height: 24), // Bottom padding
         ],
       ),
     );
   }
 
-  // Widget Helper for Notification Items
-  Widget _buildNotificationItem({
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBgColor,
-    Color? bgColor, // Optional background color (for alerts)
-    required String title,
-    Color? titleColor, // Optional title color
-    required String subtitle,
-    required String time,
-    required Color timeColor,
-    String? imageUrl,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: bgColor ?? Colors.white.withOpacity(0.05), // Default bg-white/5
-        borderRadius: BorderRadius.circular(8),
+  Widget _buildNotificationItem(Map<String, dynamic> notification) {
+    final title = notification['title'] ?? 'Notification';
+    final body = notification['body'] ?? '';
+    final timestamp = notification['timestamp'] ?? '';
+    final isRead = notification['read'] ?? false;
+    final id = notification['id'] ?? '';
+
+    return Dismissible(
+      key: Key(id),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => _deleteNotification(id),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: AppColors.error(context),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.delete_outline, color: Colors.white),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Icon
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              shape: BoxShape.circle,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isRead
+              ? AppColors.surface(context)
+              : AppColors.primary(context).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: isRead
+              ? null
+              : Border.all(color: AppColors.primary(context).withOpacity(0.3)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: AppColors.primary(context).withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.notifications_rounded,
+                color: AppColors.primary(context),
+                size: 22,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Text Content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: titleColor ?? Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: Color(0xFF9CA3AF), // gray-400
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  time,
-                  style: TextStyle(
-                    color: timeColor,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Optional Image
-          if (imageUrl != null) ...[
             const SizedBox(width: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                imageUrl,
-                width: 64,
-                height: 64,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 64,
-                  height: 64,
-                  color: Colors.grey[800],
-                  child: const Icon(Icons.broken_image, color: Colors.grey),
-                ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            color: AppColors.textPrimary(context),
+                            fontSize: 15,
+                            fontWeight:
+                                isRead ? FontWeight.w500 : FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      if (!isRead)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary(context),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (body.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      body,
+                      style: TextStyle(
+                        color: AppColors.textSecondary(context),
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  const SizedBox(height: 6),
+                  Text(
+                    _formatTimestamp(timestamp),
+                    style: TextStyle(
+                      color: AppColors.textSecondary(context),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

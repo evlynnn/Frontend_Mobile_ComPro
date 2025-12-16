@@ -273,6 +273,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await ServiceLocator.authService.login(request);
 
+      // Register FCM token after successful login
+      await ServiceLocator.notificationService.registerTokenAfterLogin();
+
       // Login successful - navigate to home
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
