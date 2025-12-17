@@ -1,16 +1,73 @@
-# face_locker_mobile
+# Face Locker Mobile
 
-A new Flutter project.
+Aplikasi mobile Flutter untuk sistem Face Locker - sistem keamanan berbasis pengenalan wajah.
 
-## Getting Started
+## Fitur
 
-This project is a starting point for a Flutter application.
+- **Autentikasi** - Login, Register, Forgot Password, OTP Verification
+- **Dashboard** - Homepage dengan status sistem
+- **Access Logs** - Riwayat akses dengan detail
+- **Notifikasi** - Push notification via Firebase Cloud Messaging
+- **Pengaturan** - App settings, Profile, Theme
+- **Keamanan** - Biometric authentication support
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Framework**: Flutter 3.5+
+- **State Management**: Provider
+- **Backend**: REST API
+- **Push Notification**: Firebase Cloud Messaging
+- **Local Storage**: SharedPreferences, Flutter Secure Storage
+- **Biometric**: local_auth
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Setup
+
+### 1. Clone repository
+
+```bash
+git clone <repository-url>
+cd face_locker_mobile
+```
+
+### 2. Setup Environment
+
+Copy `.env.example` ke `.env` dan isi dengan konfigurasi yang sesuai:
+
+```bash
+cp .env.example .env
+```
+
+### 3. Setup Firebase
+
+1. Buat project di [Firebase Console](https://console.firebase.google.com/)
+2. Download `google-services.json` dan letakkan di `android/app/`
+3. Download `GoogleService-Info.plist` dan letakkan di `ios/Runner/`
+4. Update nilai Firebase di file `.env`
+
+### 4. Install Dependencies
+
+```bash
+flutter pub get
+```
+
+### 5. Run App
+
+```bash
+flutter run
+```
+
+## Struktur Project
+
+```
+lib/
+├── constants/      # Warna, konstanta
+├── models/         # Data models
+├── screens/        # UI screens
+├── services/       # API, Auth, Notification services
+├── firebase_options.dart
+└── main.dart
+```
+
+## Environment Variables
+
+Lihat `.env.example` untuk daftar environment variables yang diperlukan.

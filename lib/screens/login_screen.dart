@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../services/service_locator.dart';
@@ -274,7 +275,12 @@ class _LoginScreenState extends State<LoginScreen> {
       await ServiceLocator.authService.login(request);
 
       // Register FCM token after successful login
-      await ServiceLocator.notificationService.registerTokenAfterLogin();
+      try {
+        await ServiceLocator.notificationService.registerTokenAfterLogin();
+        debugPrint('FCM token registration completed');
+      } catch (e) {
+        debugPrint('FCM token registration failed: $e');
+      }
 
       // Login successful - navigate to home
       if (mounted) {

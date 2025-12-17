@@ -70,8 +70,48 @@ class NotificationService {
 
   /// Register FCM token after login
   Future<void> registerTokenAfterLogin() async {
-    final token = await getToken();
-    await sendTokenToServer(token);
+    final fcmToken = await getToken();
+    if (fcmToken == null) {
+      if (kDebugMode) {
+        print('FCM token is null, cannot register');
+      }
+      return;
+    }
+
+    // Debug: check if JWT token is set
+    final jwtToken = ServiceLocator.apiService.token;
+    if (kDebugMode) {
+      print(
+          'JWT token in ApiService: ${jwtToken != null ? "SET (${jwtToken.substring(0, 20)}...)" : "NULL"}');
+    }
+
+    if (jwtToken == null) {
+      if (kDebugMode) {
+        print('JWT token is null, cannot send FCM token');
+      }
+      return;
+    }
+
+    try {
+      // Directly send token without checking isLoggedIn (we know user just logged in)
+      await ServiceLocator.apiService.post(
+        '/api/users/fcm-token',
+        {'fcm_token': fcmToken},
+        requiresAuth: true,
+      );
+
+      // Save token locally
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_fcmTokenKey, fcmToken);
+
+      if (kDebugMode) {
+        print('FCM token registered successfully after login');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to register FCM token after login: $e');
+      }
+    }
   }
 
   /// Request notification permission
