@@ -19,10 +19,22 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  // Weekly data
+  int _weeklyTotalCount = 0;
+  int _weeklyUnknownVisitors = 0;
+  bool _isLoadingWeekly = true;
+
+  // Camera status
+  bool _isCameraOnline = false;
+  String _cameraSource = '';
+  bool _isLoadingCamera = true;
+
   @override
   void initState() {
     super.initState();
     _loadTodayData();
+    _loadWeeklyData();
+    _loadCameraStatus();
   }
 
   Future<void> _loadTodayData() async {
@@ -33,8 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final response = await ServiceLocator.logService.getTodayLogs();
+      // Sort logs by timestamp descending (newest first)
+      final sortedLogs = List<Log>.from(response.data)
+        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
       setState(() {
-        _recentLogs = response.data.take(2).toList();
+        _recentLogs = sortedLogs.take(2).toList();
         _totalCount = response.data.length;
         _unknownVisitors = response.data.where((log) => !log.authorized).length;
         _isLoading = false;
@@ -45,6 +60,71 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _loadWeeklyData() async {
+    setState(() {
+      _isLoadingWeekly = true;
+    });
+
+    try {
+      // Calculate date range for this week (Monday to today)
+      final now = DateTime.now();
+      final weekStart = now.subtract(Duration(days: now.weekday - 1));
+      final startDate =
+          '${weekStart.year}-${weekStart.month.toString().padLeft(2, '0')}-${weekStart.day.toString().padLeft(2, '0')}';
+      final endDate =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+      final response =
+          await ServiceLocator.logService.getLogsByRange(startDate, endDate);
+      setState(() {
+        _weeklyTotalCount = response.count;
+        _weeklyUnknownVisitors = response.unknownVisitors;
+        _isLoadingWeekly = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingWeekly = false;
+      });
+    }
+  }
+
+  Future<void> _loadCameraStatus() async {
+    setState(() {
+      _isLoadingCamera = true;
+    });
+
+    try {
+      final response = await ServiceLocator.apiService.get(
+        '/api/camera/status',
+        requiresAuth: true,
+      );
+      if (mounted) {
+        final status = response['status'] ?? {};
+        final config = response['config'] ?? {};
+        setState(() {
+          _isCameraOnline = status['is_running'] ?? false;
+          _cameraSource = config['source_type'] ?? '';
+          _isLoadingCamera = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCameraOnline = false;
+          _isLoadingCamera = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _refreshAll() async {
+    await Future.wait([
+      _loadTodayData(),
+      _loadWeeklyData(),
+      _loadCameraStatus(),
+    ]);
   }
 
   // Widget Helper untuk Progress Bar Custom
@@ -207,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadTodayData,
+        onRefresh: _refreshAll,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
@@ -231,7 +311,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Device Online',
+                            _isLoadingCamera
+                                ? 'Checking...'
+                                : _isCameraOnline
+                                    ? 'Camera Online${_cameraSource.isNotEmpty ? ' ($_cameraSource)' : ''}'
+                                    : 'Camera Offline',
                             style: TextStyle(
                               color: AppColors.textSecondary(context),
                               fontSize: 14,
@@ -240,12 +324,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           Container(
                             height: 8,
                             width: 8,
-                            decoration: const BoxDecoration(
-                              color: Colors.green, // Hijau indikator
+                            decoration: BoxDecoration(
+                              color: _isLoadingCamera
+                                  ? Colors.grey
+                                  : _isCameraOnline
+                                      ? Colors.green
+                                      : Colors.red,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.greenAccent,
+                                  color: _isLoadingCamera
+                                      ? Colors.grey.withOpacity(0.5)
+                                      : _isCameraOnline
+                                          ? Colors.greenAccent
+                                          : Colors.redAccent,
                                   blurRadius: 4,
                                   spreadRadius: 1,
                                 ),
@@ -258,34 +350,49 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 16),
 
-              // 2. Summary This Week Card (Static/Dummy Data karena belum ada di logic lama)
-              _buildSummaryCard(
-                context: context,
-                title: 'Summary this Week',
-                leftValue: '315', // Angka hardcode sesuai desain HTML dulu
-                leftLabel: 'Total Detections',
-                leftProgress: 0.85,
-                rightValue: '14',
-                rightLabel: 'Unknown Alerts',
-                rightProgress: 0.45,
-                footer: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Avg. 45 Events/Day',
-                      style: TextStyle(
-                        color: AppColors.textSecondary(context),
-                        fontSize: 14,
+              // 2. Summary This Week Card
+              _isLoadingWeekly
+                  ? Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface(context),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(child: CircularProgressIndicator()),
+                    )
+                  : _buildSummaryCard(
+                      context: context,
+                      title: 'Summary this Week',
+                      leftValue: '$_weeklyTotalCount',
+                      leftLabel: 'Total Detections',
+                      leftProgress: _weeklyTotalCount > 0
+                          ? (_weeklyTotalCount / 500).clamp(0.0, 1.0)
+                          : 0,
+                      rightValue: '$_weeklyUnknownVisitors',
+                      rightLabel: 'Unknown Alerts',
+                      rightProgress: _weeklyTotalCount > 0
+                          ? _weeklyUnknownVisitors / _weeklyTotalCount
+                          : 0,
+                      footer: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Avg. ${_weeklyTotalCount > 0 ? (_weeklyTotalCount / DateTime.now().weekday).round() : 0} Events/Day',
+                            style: TextStyle(
+                              color: AppColors.textSecondary(context),
+                              fontSize: 14,
+                            ),
+                          ),
+                          Icon(
+                            _weeklyTotalCount > _totalCount
+                                ? Icons.trending_up
+                                : Icons.trending_flat,
+                            color: AppColors.textSecondary(context),
+                            size: 20,
+                          ),
+                        ],
                       ),
                     ),
-                    Icon(
-                      Icons.trending_up,
-                      color: AppColors.textSecondary(context),
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
 
               const SizedBox(height: 32),
 

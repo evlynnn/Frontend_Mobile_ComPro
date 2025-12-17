@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../constants/colors.dart';
 import '../models/log.dart';
 
@@ -120,12 +121,13 @@ class _LogDetailScreenState extends State<LogDetailScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildDetailRow(context, 'Time', _log!.timestamp,
+                        _buildDetailRow(
+                            context, 'Time', _formatTimestamp(_log!.timestamp),
                             showBorder: true),
                         _buildDetailRow(context, 'Role', _log!.role,
                             showBorder: true),
                         _buildDetailRow(context, 'AI Confidence',
-                            '${(_log!.confidence * 100).toStringAsFixed(1)}%',
+                            '${(_log!.confidence).toStringAsFixed(2)}%',
                             showBorder: true),
                         _buildDetailRow(context, 'Method', 'Facial Recognition',
                             showBorder: true),
@@ -138,6 +140,15 @@ class _LogDetailScreenState extends State<LogDetailScreen> {
               ),
             ),
     );
+  }
+
+  String _formatTimestamp(String timestamp) {
+    try {
+      final date = DateTime.parse(timestamp);
+      return DateFormat('EEEE, d MMMM yyyy • HH:mm').format(date);
+    } catch (e) {
+      return timestamp;
+    }
   }
 
   Widget _buildDetailRow(BuildContext context, String label, String value,

@@ -91,15 +91,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  Map<String, List<Map<String, dynamic>>> _groupNotificationsByDate() {
+  List<MapEntry<String, List<Map<String, dynamic>>>>
+      _groupNotificationsByDate() {
     final Map<String, List<Map<String, dynamic>>> grouped = {};
+    final Map<String, DateTime> dateKeys = {};
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
 
     for (final notification in _notifications) {
       try {
-        final date = DateTime.parse(notification['timestamp'] ?? '');
+        final timestamp = notification['timestamp'] ?? '';
+        final date = DateTime.parse(timestamp);
         final notificationDate = DateTime(date.year, date.month, date.day);
 
         String key;
@@ -113,13 +116,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
         grouped.putIfAbsent(key, () => []);
         grouped[key]!.add(notification);
+        dateKeys[key] = notificationDate;
       } catch (e) {
         grouped.putIfAbsent('Other', () => []);
         grouped['Other']!.add(notification);
+        dateKeys['Other'] = DateTime(1970);
       }
     }
 
-    return grouped;
+    // Sort keys: Today first, Yesterday second, then by date descending
+    final sortedKeys = grouped.keys.toList()
+      ..sort((a, b) {
+        if (a == 'Today') return -1;
+        if (b == 'Today') return 1;
+        if (a == 'Yesterday') return -1;
+        if (b == 'Yesterday') return 1;
+        final dateA = dateKeys[a] ?? DateTime(1970);
+        final dateB = dateKeys[b] ?? DateTime(1970);
+        return dateB.compareTo(dateA);
+      });
+
+    return sortedKeys.map((key) => MapEntry(key, grouped[key]!)).toList();
   }
 
   @override
@@ -164,9 +181,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: groupedNotifications.length,
                     itemBuilder: (context, index) {
-                      final dateKey =
-                          groupedNotifications.keys.elementAt(index);
-                      final notifications = groupedNotifications[dateKey]!;
+                      final entry = groupedNotifications[index];
+                      final dateKey = entry.key;
+                      final notifications = entry.value;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,6 +259,28 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final isRead = notification['read'] ?? false;
     final id = notification['id'] ?? '';
 
+    // Determine notification type based on title
+    final isUnknown = title.toLowerCase().contains('unknown') ||
+        title.toLowerCase().contains('denied') ||
+        title.toLowerCase().contains('alert');
+    final isGranted = title.toLowerCase().contains('granted') ||
+        title.toLowerCase().contains('authorized') ||
+        title.toLowerCase().contains('welcome');
+
+    // Set colors based on type
+    Color accentColor;
+    IconData iconData;
+    if (isUnknown) {
+      accentColor = AppColors.error(context);
+      iconData = Icons.warning_rounded;
+    } else if (isGranted) {
+      accentColor = Colors.green;
+      iconData = Icons.check_circle_rounded;
+    } else {
+      accentColor = AppColors.primary(context);
+      iconData = Icons.notifications_rounded;
+    }
+
     return Dismissible(
       key: Key(id),
       direction: DismissDirection.endToStart,
@@ -260,11 +299,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         decoration: BoxDecoration(
           color: isRead
               ? AppColors.surface(context)
-              : AppColors.primary(context).withOpacity(0.1),
+              : accentColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: isRead
-              ? null
-              : Border.all(color: AppColors.primary(context).withOpacity(0.3)),
+          border:
+              isRead ? null : Border.all(color: accentColor.withOpacity(0.3)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,12 +311,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: AppColors.primary(context).withOpacity(0.15),
+                color: accentColor.withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.notifications_rounded,
-                color: AppColors.primary(context),
+                iconData,
+                color: accentColor,
                 size: 22,
               ),
             ),
@@ -305,7 +343,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: AppColors.primary(context),
+                            color: accentColor,
                             shape: BoxShape.circle,
                           ),
                         ),

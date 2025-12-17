@@ -103,6 +103,9 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
   void _applyLocalFilters() {
     List<Log> filtered = List.from(_logs);
 
+    // Sort by timestamp descending (newest first)
+    filtered.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
     // Filter by search text
     if (_searchController.text.isNotEmpty) {
       final searchLower = _searchController.text.toLowerCase();
