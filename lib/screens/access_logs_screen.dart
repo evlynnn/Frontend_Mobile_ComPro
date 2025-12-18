@@ -6,6 +6,11 @@ import 'package:share_plus/share_plus.dart';
 import '../constants/colors.dart';
 import '../services/service_locator.dart';
 import '../models/log.dart';
+import '../widgets/access_logs/log_item_widget.dart';
+import '../widgets/access_logs/log_filter_widgets.dart';
+import '../widgets/access_logs/log_export_sheet.dart';
+import '../widgets/access_logs/log_stats_card.dart';
+import '../widgets/access_logs/log_empty_state.dart';
 
 class AccessLogsScreen extends StatefulWidget {
   const AccessLogsScreen({super.key});
@@ -233,81 +238,15 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.divider(context),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Export Logs',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary(context),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child:
-                    const Icon(Icons.table_chart_rounded, color: Colors.green),
-              ),
-              title: Text(
-                'Export as CSV',
-                style: TextStyle(color: AppColors.textPrimary(context)),
-              ),
-              subtitle: Text(
-                'Spreadsheet format',
-                style: TextStyle(color: AppColors.textSecondary(context)),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _exportToCSV();
-              },
-            ),
-            ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child:
-                    const Icon(Icons.description_rounded, color: Colors.blue),
-              ),
-              title: Text(
-                'Export as Text',
-                style: TextStyle(color: AppColors.textPrimary(context)),
-              ),
-              subtitle: Text(
-                'Plain text format',
-                style: TextStyle(color: AppColors.textSecondary(context)),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _exportToText();
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+      builder: (context) => LogExportBottomSheet(
+        onExportCSV: () {
+          Navigator.pop(context);
+          _exportToCSV();
+        },
+        onExportText: () {
+          Navigator.pop(context);
+          _exportToText();
+        },
       ),
     );
   }
@@ -424,42 +363,9 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
         children: [
           // Stats Section
           if (!_isLoading && _errorMessage == null)
-            Container(
-              padding: const EdgeInsets.all(20),
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              decoration: BoxDecoration(
-                color: AppColors.surface(context),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem(
-                    context,
-                    '$_totalCount',
-                    'Total Logs',
-                    AppColors.primary(context),
-                  ),
-                  Container(
-                    width: 1,
-                    height: 40,
-                    color: AppColors.divider(context),
-                  ),
-                  _buildStatItem(
-                    context,
-                    '$_unknownVisitors',
-                    'Unknown',
-                    AppColors.error(context),
-                  ),
-                ],
-              ),
+            LogStatsCard(
+              totalCount: _totalCount,
+              unknownVisitors: _unknownVisitors,
             ),
 
           // Search Bar - Improved styling
@@ -523,7 +429,7 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
             child: Row(
               children: [
                 // Period Filter
-                _buildFilterChip(
+                LogFilterChip(
                   label: _getPeriodLabel(),
                   icon: Icons.calendar_today_rounded,
                   isActive: _selectedPeriod != LogFilterPeriod.today,
@@ -532,7 +438,7 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
                 const SizedBox(width: 8),
 
                 // Status Filter
-                _buildFilterChip(
+                LogFilterChip(
                   label: _getStatusLabel(),
                   icon: Icons.filter_list_rounded,
                   isActive: _selectedStatus != LogStatusFilter.all,
@@ -544,7 +450,7 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
                     _selectedStatus != LogStatusFilter.all)
                   Padding(
                     padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
+                    child: LogClearFilterButton(
                       onTap: () {
                         setState(() {
                           _selectedPeriod = LogFilterPeriod.today;
@@ -555,36 +461,6 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
                         });
                         _loadLogs();
                       },
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.error(context).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.clear_rounded,
-                              size: 16,
-                              color: AppColors.error(context),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Clear',
-                              style: TextStyle(
-                                color: AppColors.error(context),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
               ],
@@ -615,9 +491,12 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _errorMessage != null
-                      ? _buildErrorState()
+                      ? LogErrorState(
+                          errorMessage: _errorMessage!,
+                          onRetry: _loadLogs,
+                        )
                       : _filteredLogs.isEmpty
-                          ? _buildEmptyState()
+                          ? const LogEmptyState()
                           : ListView.builder(
                               controller: _scrollController,
                               physics: const AlwaysScrollableScrollPhysics(),
@@ -635,97 +514,16 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
                                   );
                                 }
                                 final log = _filteredLogs[index];
-                                return _buildLogItem(log);
+                                return LogItemWidget(
+                                  log: log,
+                                  showDate:
+                                      _selectedPeriod != LogFilterPeriod.today,
+                                );
                               },
                             ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context,
-    String value,
-    String label,
-    Color valueColor,
-  ) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: valueColor,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.textSecondary(context),
-            fontSize: 13,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFilterChip({
-    required String label,
-    required IconData icon,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primary(context).withOpacity(0.15)
-              : AppColors.surface(context),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isActive
-                ? AppColors.primary(context).withOpacity(0.3)
-                : Colors.transparent,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isActive
-                  ? AppColors.primary(context)
-                  : AppColors.textSecondary(context),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive
-                    ? AppColors.primary(context)
-                    : AppColors.textPrimary(context),
-                fontSize: 13,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 18,
-              color: isActive
-                  ? AppColors.primary(context)
-                  : AppColors.textSecondary(context),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -737,94 +535,27 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.divider(context),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Filter by Date',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary(context),
-                ),
-              ),
-            ),
-            _buildPeriodOption(
-              'Today',
-              Icons.today_rounded,
-              _selectedPeriod == LogFilterPeriod.today,
-              () {
-                Navigator.pop(context);
-                setState(() {
-                  _selectedPeriod = LogFilterPeriod.today;
-                  _selectedDate = null;
-                  _startDate = null;
-                  _endDate = null;
-                });
-                _loadLogs();
-              },
-            ),
-            _buildPeriodOption(
-              'Pick a Date',
-              Icons.calendar_month_rounded,
-              _selectedPeriod == LogFilterPeriod.date,
-              () {
-                Navigator.pop(context);
-                _selectDate();
-              },
-            ),
-            _buildPeriodOption(
-              'Date Range',
-              Icons.date_range_rounded,
-              _selectedPeriod == LogFilterPeriod.range,
-              () {
-                Navigator.pop(context);
-                _selectDateRange();
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+      builder: (context) => LogPeriodBottomSheet(
+        selectedPeriod: _selectedPeriod,
+        onSelectToday: () {
+          Navigator.pop(context);
+          setState(() {
+            _selectedPeriod = LogFilterPeriod.today;
+            _selectedDate = null;
+            _startDate = null;
+            _endDate = null;
+          });
+          _loadLogs();
+        },
+        onSelectDate: () {
+          Navigator.pop(context);
+          _selectDate();
+        },
+        onSelectRange: () {
+          Navigator.pop(context);
+          _selectDateRange();
+        },
       ),
-    );
-  }
-
-  Widget _buildPeriodOption(
-    String label,
-    IconData icon,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: isSelected
-            ? AppColors.primary(context)
-            : AppColors.textSecondary(context),
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: AppColors.textPrimary(context),
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
-      trailing: isSelected
-          ? Icon(Icons.check_rounded, color: AppColors.primary(context))
-          : null,
-      onTap: onTap,
     );
   }
 
@@ -835,315 +566,13 @@ class _AccessLogsScreenState extends State<AccessLogsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.divider(context),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Filter by Status',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary(context),
-                ),
-              ),
-            ),
-            _buildStatusOption(
-              'All Status',
-              Icons.list_rounded,
-              _selectedStatus == LogStatusFilter.all,
-              () {
-                Navigator.pop(context);
-                setState(() => _selectedStatus = LogStatusFilter.all);
-                _applyLocalFilters();
-              },
-            ),
-            _buildStatusOption(
-              'Authorized Only',
-              Icons.check_circle_rounded,
-              _selectedStatus == LogStatusFilter.authorized,
-              () {
-                Navigator.pop(context);
-                setState(() => _selectedStatus = LogStatusFilter.authorized);
-                _applyLocalFilters();
-              },
-              iconColor: Colors.green,
-            ),
-            _buildStatusOption(
-              'Unauthorized Only',
-              Icons.cancel_rounded,
-              _selectedStatus == LogStatusFilter.unauthorized,
-              () {
-                Navigator.pop(context);
-                setState(() => _selectedStatus = LogStatusFilter.unauthorized);
-                _applyLocalFilters();
-              },
-              iconColor: AppColors.error(context),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusOption(
-    String label,
-    IconData icon,
-    bool isSelected,
-    VoidCallback onTap, {
-    Color? iconColor,
-  }) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: iconColor ??
-            (isSelected
-                ? AppColors.primary(context)
-                : AppColors.textSecondary(context)),
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: AppColors.textPrimary(context),
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
-      trailing: isSelected
-          ? Icon(Icons.check_rounded, color: AppColors.primary(context))
-          : null,
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildErrorState() {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.3,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline_rounded,
-                  size: 48,
-                  color: AppColors.error(context),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Something went wrong',
-                  style: TextStyle(
-                    color: AppColors.textPrimary(context),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _errorMessage!,
-                  style: TextStyle(
-                    color: AppColors.textSecondary(context),
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _loadLogs,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Retry'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary(context),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.3,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.inbox_rounded,
-                  size: 48,
-                  color: AppColors.textSecondary(context),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No logs found',
-                  style: TextStyle(
-                    color: AppColors.textPrimary(context),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Try adjusting your filters',
-                  style: TextStyle(
-                    color: AppColors.textSecondary(context),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLogItem(Log log) {
-    final bool isAuthorized = log.authorized;
-    final String timeString = log.timestamp.length >= 16
-        ? log.timestamp.substring(11, 16)
-        : log.timestamp;
-    final String dateString =
-        log.timestamp.length >= 10 ? log.timestamp.substring(0, 10) : '';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: AppColors.surface(context),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              '/log-detail',
-              arguments: log,
-            );
-          },
-          borderRadius: BorderRadius.circular(14),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
-                // Status Icon
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: isAuthorized
-                        ? Colors.green.withOpacity(0.1)
-                        : AppColors.error(context).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    isAuthorized
-                        ? Icons.check_circle_rounded
-                        : Icons.cancel_rounded,
-                    color:
-                        isAuthorized ? Colors.green : AppColors.error(context),
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 14),
-
-                // Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              log.name,
-                              style: TextStyle(
-                                color: AppColors.textPrimary(context),
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Text(
-                            timeString,
-                            style: TextStyle(
-                              color: AppColors.textSecondary(context),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            isAuthorized ? 'Access Granted' : 'Access Denied',
-                            style: TextStyle(
-                              color: isAuthorized
-                                  ? Colors.green
-                                  : AppColors.error(context),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (_selectedPeriod != LogFilterPeriod.today)
-                            Text(
-                              dateString,
-                              style: TextStyle(
-                                color: AppColors.textSecondary(context),
-                                fontSize: 11,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textSecondary(context),
-                  size: 22,
-                ),
-              ],
-            ),
-          ),
-        ),
+      builder: (context) => LogStatusBottomSheet(
+        selectedStatus: _selectedStatus,
+        onStatusSelected: (status) {
+          Navigator.pop(context);
+          setState(() => _selectedStatus = status);
+          _applyLocalFilters();
+        },
       ),
     );
   }
