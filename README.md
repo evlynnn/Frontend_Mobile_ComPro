@@ -62,8 +62,21 @@ flutter run
 lib/
 ├── constants/      # Warna, konstanta
 ├── models/         # Data models
+├── painters/       # Custom painters (FaceGuidePainter, dll)
 ├── screens/        # UI screens
 ├── services/       # API, Auth, Notification services
+├── widgets/        # Reusable UI components
+│   ├── access_logs/    # Widgets untuk Access Logs screen
+│   │   ├── log_item_widget.dart
+│   │   ├── log_filter_widgets.dart
+│   │   ├── log_export_sheet.dart
+│   │   ├── log_stats_card.dart
+│   │   └── log_empty_state.dart
+│   └── face_enroll/    # Widgets untuk Face Enroll screen
+│       ├── enroll_capture_view.dart
+│       ├── enroll_preview_view.dart
+│       ├── enroll_upload_view.dart
+│       └── enroll_result_view.dart
 ├── firebase_options.dart
 └── main.dart
 ```
