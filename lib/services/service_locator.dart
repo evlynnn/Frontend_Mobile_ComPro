@@ -1,6 +1,7 @@
 import 'api_service.dart';
 import 'auth_service.dart';
 import 'biometric_service.dart';
+import 'face_user_service.dart';
 import 'log_service.dart';
 import 'notification_service.dart';
 
@@ -17,6 +18,7 @@ class ServiceLocator {
   static final ApiService _apiService = ApiService();
   static late final AuthService _authService;
   static late final LogService _logService;
+  static late final FaceUserService _faceUserService;
   static final BiometricService _biometricService = BiometricService();
   static final NotificationService _notificationService = NotificationService();
 
@@ -24,6 +26,7 @@ class ServiceLocator {
   static void setup() {
     _authService = AuthService(_apiService);
     _logService = LogService(_apiService);
+    _faceUserService = FaceUserService(_apiService);
   }
 
   /// Get AuthService instance
@@ -40,4 +43,7 @@ class ServiceLocator {
 
   /// Get NotificationService instance
   static NotificationService get notificationService => _notificationService;
+
+  /// Get FaceUserService instance
+  static FaceUserService get faceUserService => _faceUserService;
 }

@@ -164,7 +164,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 32),
 
             // --- Menu Options ---
-            // Hanya menyisakan App Settings
             _buildMenuItem(
               icon: Icons.settings,
               iconColor: AppColors.textPrimary(context),

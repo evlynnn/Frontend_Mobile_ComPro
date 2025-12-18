@@ -181,6 +181,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: 24),
 
+            // Face Recognition Section
+            _buildSectionHeader(context, 'Face Recognition'),
+            const SizedBox(height: 12),
+
+            _buildMenuItem(
+              context,
+              icon: Icons.face_rounded,
+              title: 'Face Users',
+              subtitle: 'Manage enrolled face users',
+              onTap: () => Navigator.pushNamed(context, '/face-users'),
+            ),
+
+            const SizedBox(height: 24),
+
             // Support Section
             _buildSectionHeader(context, 'Support'),
             const SizedBox(height: 12),
