@@ -101,4 +101,25 @@ class AuthService {
   String? getToken() {
     return _apiService.token;
   }
+
+  // Request password reset with new password
+  Future<Map<String, dynamic>> requestPasswordReset({
+    required String username,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      final response = await _apiService.post(
+        '/api/users/reset_request',
+        {
+          'username': username,
+          'password': password,
+          'confirmPassword': confirmPassword,
+        },
+      );
+      return response ?? {'message': 'Reset request submitted successfully'};
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

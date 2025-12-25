@@ -30,8 +30,8 @@ class _FaceEnrollScreenState extends State<FaceEnrollScreen> {
 
   // Form data
   final _nameController = TextEditingController();
-  String _selectedRole = 'Guest';
-  final List<String> _roles = ['Aslab', 'Dosen'];
+  String _selectedRole = 'Aslab';
+  final List<String> _roles = ['Aslab', 'Dosen', 'Guest'];
 
   // For add sample mode
   bool _isAddSampleMode = false;

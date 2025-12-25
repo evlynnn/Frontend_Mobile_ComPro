@@ -121,7 +121,9 @@ class EnrollPreviewView extends StatelessWidget {
 
             // Role dropdown
             DropdownButtonFormField<String>(
-              value: selectedRole,
+              value: roles.contains(selectedRole)
+                  ? selectedRole
+                  : (roles.isNotEmpty ? roles.first : null),
               dropdownColor: AppColors.surface(context),
               style: TextStyle(color: AppColors.textPrimary(context)),
               decoration: InputDecoration(
